@@ -126,11 +126,6 @@ class StressCalculatorApp {
 
     if (this.diagramRenderer) this.diagramRenderer.setTheme(theme);
     if (this.mohrRenderer) this.mohrRenderer.setTheme(theme);
-
-    const btnTheme = document.getElementById('btnThemeToggle');
-    if (btnTheme) {
-      btnTheme.textContent = theme === 'light' ? this.t('themeNight') : this.t('themeDay');
-    }
   }
 
   initRenderers() {
@@ -160,17 +155,7 @@ class StressCalculatorApp {
   }
 
   initUI() {
-    // 1. Theme Toggle Button
-    const btnTheme = document.getElementById('btnThemeToggle');
-    if (btnTheme) {
-      btnTheme.addEventListener('click', () => {
-        const nextTheme = this.state.theme === 'light' ? 'dark' : 'light';
-        this.applyTheme(nextTheme);
-        this.render();
-      });
-    }
-
-    // 2. Shape Selection Buttons
+    // 1. Shape Selection Buttons
     const shapeButtons = document.querySelectorAll('.shape-btn');
     shapeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -253,6 +238,41 @@ class StressCalculatorApp {
         this.updateLanguage(this.state.lang);
         this.recalculate();
       });
+    }
+
+    // 5b. Contact Creator Button & Modal
+    const btnContact = document.getElementById('btnContact');
+    const modalContact = document.getElementById('modalContact');
+    const btnCloseContact = document.getElementById('btnCloseContactModal');
+    const btnCloseContactFooter = document.getElementById('btnCloseContactModalFooter');
+    const btnCopyEmail = document.getElementById('btnCopyEmail');
+
+    if (btnContact) {
+      btnContact.addEventListener('click', () => this.openContactModal());
+    }
+
+    if (btnCloseContact) {
+      btnCloseContact.addEventListener('click', () => this.closeContactModal());
+    }
+
+    if (btnCloseContactFooter) {
+      btnCloseContactFooter.addEventListener('click', () => this.closeContactModal());
+    }
+
+    if (modalContact) {
+      modalContact.addEventListener('click', (e) => {
+        if (e.target === modalContact) this.closeContactModal();
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modalContact && modalContact.classList.contains('open')) {
+        this.closeContactModal();
+      }
+    });
+
+    if (btnCopyEmail) {
+      btnCopyEmail.addEventListener('click', () => this.copyEmailToClipboard());
     }
 
     // 6. Share Button
@@ -592,11 +612,6 @@ class StressCalculatorApp {
     const btn = document.getElementById('btnLangToggle');
     if (btn) btn.textContent = this.t('langToggle');
 
-    const btnTheme = document.getElementById('btnThemeToggle');
-    if (btnTheme) {
-      btnTheme.textContent = this.state.theme === 'light' ? this.t('themeNight') : this.t('themeDay');
-    }
-
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       if (key) {
@@ -609,8 +624,64 @@ class StressCalculatorApp {
       }
     });
 
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      if (key) {
+        el.setAttribute('title', this.t(key));
+      }
+    });
+
+    const btnKofi = document.getElementById('btnKofi');
+    if (btnKofi) btnKofi.setAttribute('title', this.t('kofiTitle'));
+
+    const btnContact = document.getElementById('btnContact');
+    if (btnContact) btnContact.setAttribute('title', this.t('contactModalTitle'));
+
     this.populatePresetsDropdown();
     this.rebuildParamInputs();
+  }
+
+  openContactModal() {
+    const modal = document.getElementById('modalContact');
+    if (modal) modal.classList.add('open');
+  }
+
+  closeContactModal() {
+    const modal = document.getElementById('modalContact');
+    if (modal) modal.classList.remove('open');
+  }
+
+  copyEmailToClipboard() {
+    const email = 'pengyuan.xia.dokt@pw.edu.pl';
+    const btnText = document.getElementById('btnCopyEmailText');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(email).then(() => {
+        this.showToast(this.t('toastEmailCopied') || '📋 Email copied to clipboard!');
+        if (btnText) {
+          btnText.textContent = this.t('copiedBtn') || '✓ Copied!';
+          setTimeout(() => {
+            if (btnText) btnText.textContent = this.t('copyBtn') || '📋 Copy';
+          }, 2200);
+        }
+      }).catch(() => {
+        this.showToast(email);
+      });
+    } else {
+      this.showToast(email);
+    }
+  }
+
+  showToast(msg) {
+    if (this.shareManager) {
+      this.shareManager.showToast(msg);
+    } else {
+      const toast = document.getElementById('appToast');
+      if (toast) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2400);
+      }
+    }
   }
 
   exportCompositePNG() {
