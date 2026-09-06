@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BPQGQCG8Q2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BPQGQCG8Q2');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beam Stress Distribution Calculator | StructLab.tech</title>
+  <meta name="description" content="Civil engineering web app for calculating cross-sectional Normal Stress (Navier), Shear Stress, and Mohr's Circle principal stresses.">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+  <!-- QR Code Engine -->
+  <script src="js/qrious.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 transition-colors duration-200">
+
+  <!-- ========================================== -->
+  <!-- 1. STRUCTLAB UNIVERSAL TOP BAR             -->
+  <!-- ========================================== -->
+  <div id="structlab-universal-bar" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; padding: 6px 16px; display: flex; align-items: center; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #475569; position: sticky; top: 0; z-index: 9999;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <a href="https://structlab.tech" style="color: #0f172a; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+        <span style="font-size: 14px;">🏛️</span> StructLab<span style="color: #4f46e5;">.tech</span>
+      </a>
+      <span style="color: #cbd5e1;">|</span>
+      <nav style="display: flex; gap: 14px;">
+        <a href="https://beam.structlab.tech" style="color: #475569; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#475569'">📐 Beam</a>
+        <a href="https://frame.structlab.tech" style="color: #475569; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0284c7'" onmouseout="this.style.color='#475569'">🏛️ Frame</a>
+        <a href="https://section.structlab.tech" style="color: #475569; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#059669'" onmouseout="this.style.color='#475569'">📏 Section</a>
+        <a href="https://stress.structlab.tech" style="color: #d97706; font-weight: 600; text-decoration: none; border-bottom: 2px solid #d97706; padding-bottom: 1px;">🔬 Stress</a>
+      </nav>
+    </div>
+    <div>
+      <a href="https://structlab.tech" data-i18n="backToHub" style="color: #64748b; text-decoration: none;" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#64748b'">← Back to Hub</a>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 2. APPLICATION HEADER                      -->
+  <!-- ========================================== -->
+  <header class="border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl shadow-inner shadow-amber-500/10">
+        🔬
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900 flex items-center gap-2" data-i18n="appTitle">
+          Beam Stress Distribution Calculator
+        </h1>
+        <p class="text-xs text-slate-500 hidden sm:block" data-i18n="appSubtitle">
+          Cross-sectional Normal Stress, Shear Stress & Mohr's Circle Analysis
+        </p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2.5 action-buttons">
+      <!-- Day / Night Toggle -->
+      <button id="btnThemeToggle" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 border border-slate-200 transition-colors flex items-center gap-1.5">
+        🌙 Night
+      </button>
+
+      <!-- Language Toggle -->
+      <button id="btnLangToggle" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 border border-slate-200 transition-colors">
+        PL
+      </button>
+
+      <!-- Share -->
+      <button id="btnShare" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold text-white border border-indigo-600 flex items-center gap-1.5 transition-all shadow-sm">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+        <span data-i18n="btnShare">Share Model</span>
+      </button>
+
+      <!-- Export PNG -->
+      <button id="btnExportPNG" class="px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 border border-slate-300 flex items-center gap-1.5 transition-colors shadow-sm">
+        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        <span data-i18n="btnExport">Export PNG</span>
+      </button>
+
+      <!-- Print Report -->
+      <button id="btnPrintReport" class="px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 border border-slate-300 hidden md:flex items-center gap-1.5 transition-colors shadow-sm">
+        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        <span data-i18n="btnPrint">Print Report</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 3. MAIN DASHBOARD CONTENT                  -->
+  <!-- ========================================== -->
+  <main class="flex-1 p-4 sm:p-6 max-w-[1720px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: SIDEBAR CONTROLS (4 Cols) -->
+    <aside class="lg:col-span-4 xl:col-span-3 space-y-5 sidebar-panel">
+
+      <!-- SECTION SHAPE CARD -->
+      <div class="glass-panel rounded-2xl p-5 shadow-sm">
+        <h3 class="text-xs uppercase font-bold tracking-wider text-slate-500 mb-3 flex items-center justify-between">
+          <span data-i18n="sectionGeometry">Section Geometry</span>
+          <span class="text-indigo-600 text-sm">📐</span>
+        </h3>
+
+        <!-- 5 Shape Selector Buttons -->
+        <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4">
+          <button class="shape-btn rounded-xl p-2.5 flex flex-col items-center gap-1.5" data-shape="rect" title="Solid Rectangle">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="1.5"/></svg>
+            <span class="text-[11px] font-medium">Rect</span>
+          </button>
+          <button class="shape-btn active rounded-xl p-2.5 flex flex-col items-center gap-1.5" data-shape="ibeam" title="I-Beam with Top/Bottom Flanges">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4 3h16v3.5h-5.5v11H20V21H4v-3.5h5.5v-11H4V3z"/>
+            </svg>
+            <span class="text-[11px] font-medium">I-Beam</span>
+          </button>
+          <button class="shape-btn rounded-xl p-2.5 flex flex-col items-center gap-1.5" data-shape="tbeam" title="T-Section">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4 3h16v4h-6v14h-4V7H4V3z"/>
+            </svg>
+            <span class="text-[11px] font-medium">T-Beam</span>
+          </button>
+          <button class="shape-btn rounded-xl p-2.5 flex flex-col items-center gap-1.5" data-shape="box" title="Hollow Box / RHS">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <rect x="7" y="7" width="10" height="10" rx="1"/>
+            </svg>
+            <span class="text-[11px] font-medium">Box</span>
+          </button>
+          <button class="shape-btn rounded-xl p-2.5 flex flex-col items-center gap-1.5" data-shape="circle" title="Solid Circle">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+            <span class="text-[11px] font-medium">Circle</span>
+          </button>
+        </div>
+
+        <!-- Presets Dropdown -->
+        <div class="mb-4">
+          <select id="presetSelect" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all cursor-pointer shadow-sm">
+            <option value="" disabled selected>Load Standard Preset...</option>
+          </select>
+        </div>
+
+        <!-- Parametric Inputs (Dynamic) -->
+        <div id="paramInputsContainer" class="grid grid-cols-2 gap-3">
+        </div>
+      </div>
+
+      <!-- APPLIED FORCES & MOMENTS CARD -->
+      <div class="glass-panel rounded-2xl p-4 sm:p-5 shadow-sm">
+        <h3 class="text-xs uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
+          <span data-i18n="appliedMoments">Applied Moments & Shear Forces</span>
+          <span class="text-amber-600 text-sm font-bold font-mono">⇊ ⇇</span>
+        </h3>
+
+        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+          <!-- My -->
+          <label for="inpMomentMy" class="bg-white dark:bg-slate-800/90 px-2.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-xs hover:border-amber-400 dark:hover:border-amber-500 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500 transition-all cursor-text">
+            <span class="text-slate-500 dark:text-slate-400 font-serif font-bold text-sm select-none"><i>M</i><sub class="text-[10px] font-sans font-semibold">y</sub>:</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="inpMomentMy" value="120" step="any" class="w-16 bg-transparent text-right font-mono font-bold text-xs text-amber-600 dark:text-amber-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+              <span class="font-mono font-bold text-xs text-amber-600 dark:text-amber-400">kNm</span>
+            </div>
+          </label>
+
+          <!-- Mz -->
+          <label for="inpMomentMz" class="bg-white dark:bg-slate-800/90 px-2.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-xs hover:border-amber-400 dark:hover:border-amber-500 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500 transition-all cursor-text">
+            <span class="text-slate-500 dark:text-slate-400 font-serif font-bold text-sm select-none"><i>M</i><sub class="text-[10px] font-sans font-semibold">z</sub>:</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="inpMomentMz" value="0" step="any" class="w-16 bg-transparent text-right font-mono font-bold text-xs text-amber-600 dark:text-amber-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+              <span class="font-mono font-bold text-xs text-amber-600 dark:text-amber-400">kNm</span>
+            </div>
+          </label>
+
+          <!-- Tz -->
+          <label for="inpShearVz" class="bg-white dark:bg-slate-800/90 px-2.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-xs hover:border-sky-400 dark:hover:border-sky-500 focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500 transition-all cursor-text">
+            <span class="text-slate-500 dark:text-slate-400 font-serif font-bold text-sm select-none"><i>T</i><sub class="text-[10px] font-sans font-semibold">z</sub>:</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="inpShearVz" value="80" step="any" class="w-16 bg-transparent text-right font-mono font-bold text-xs text-sky-600 dark:text-cyan-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+              <span class="font-mono font-bold text-xs text-sky-600 dark:text-cyan-400">kN</span>
+            </div>
+          </label>
+
+          <!-- Ty -->
+          <label for="inpShearVy" class="bg-white dark:bg-slate-800/90 px-2.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-xs hover:border-sky-400 dark:hover:border-sky-500 focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500 transition-all cursor-text">
+            <span class="text-slate-500 dark:text-slate-400 font-serif font-bold text-sm select-none"><i>T</i><sub class="text-[10px] font-sans font-semibold">y</sub>:</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="inpShearVy" value="0" step="any" class="w-16 bg-transparent text-right font-mono font-bold text-xs text-sky-600 dark:text-cyan-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+              <span class="font-mono font-bold text-xs text-sky-600 dark:text-cyan-400">kN</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- HEIGHT OF INTEREST (MANUAL ELEVATION PROBE) CARD -->
+      <div class="glass-panel rounded-2xl p-4 sm:p-5 shadow-sm">
+        <h3 class="text-xs uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
+          <span data-i18n="heightOfInterest">Height of Interest (z)</span>
+          <span class="text-indigo-600 dark:text-indigo-400 text-sm">🎯</span>
+        </h3>
+
+        <!-- Numeric input for z in cm -->
+        <div class="mb-3">
+          <label for="inpProbeZ" class="bg-white dark:bg-slate-800/90 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-xs hover:border-indigo-400 dark:hover:border-indigo-500 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all cursor-text">
+            <span class="text-slate-600 dark:text-slate-300 font-serif font-bold text-xs sm:text-sm select-none"><i>z</i> (from N-A, ↓):</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="inpProbeZ" value="0.0" step="0.1" class="w-20 bg-transparent text-right font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+              <span class="font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400">cm</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Slider for z -->
+        <div class="mb-3">
+          <input type="range" id="sliderProbeZ" min="-12" max="12" step="0.1" value="0" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:accent-indigo-500">
+          <div class="flex justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-1">
+            <span id="label_zMin">Top: -12.0 cm</span>
+            <span id="label_zMax">Bot: +12.0 cm</span>
+          </div>
+        </div>
+
+        <!-- Quick preset jump buttons -->
+        <div class="grid grid-cols-3 gap-1.5 text-[11px] font-mono font-semibold">
+          <button type="button" id="btnProbeTop" class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors text-center cursor-pointer" title="Jump to top fiber" data-i18n="probeJumpTop">Top</button>
+          <button type="button" id="btnProbeNA" class="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 transition-colors text-center cursor-pointer" title="Jump to Neutral Axis" data-i18n="probeJumpNA">N-A (z = 0)</button>
+          <button type="button" id="btnProbeBot" class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors text-center cursor-pointer" title="Jump to bottom fiber" data-i18n="probeJumpBot">Bottom</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- RIGHT COLUMN: SYNCHRONIZED VIEWPORT & ANALYTICS (8 Cols) -->
+    <section class="lg:col-span-8 xl:col-span-9 space-y-5 main-content">
+
+      <!-- INTERACTIVE GUIDANCE CALLOUT -->
+      <div class="bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-sm text-amber-900 dark:text-amber-200 shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">💡</span>
+          <span class="font-medium text-sm sm:text-base leading-snug" data-i18n="diagramInteractHint">
+            Click or drag directly across any diagram (Section, Normal Stress, or Shear Stress) to move the inspection line to any height y or width z.
+          </span>
+        </div>
+        <span class="hidden sm:inline-block font-mono text-xs uppercase font-bold tracking-wider bg-white dark:bg-slate-800 px-2.5 py-1 rounded border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300 shrink-0 shadow-xs">
+          Interactive Viewports
+        </span>
+      </div>
+
+      <!-- 6 SYNCHRONIZED DIAGRAM VIEWPORTS (3x2 Grid: Row 1 = Geometry, Normal Stress, Vertical Shear; Row 2 = Horizontal Shear, Stress State, Mohr Circle) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <!-- 1. Geometry (Cross-Section) -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-tight flex items-center gap-1.5" data-i18n="diagram_section">
+              <span>📐</span> <span>Cross-Section</span>
+            </h4>
+            <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Geometry</span>
+          </div>
+          <div class="diagram-canvas-wrap" title="Click or drag to inspect height z">
+            <canvas id="canvasSection"></canvas>
+          </div>
+        </div>
+
+        <!-- 2. Normal Stress -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm sm:text-base font-bold text-sky-600 dark:text-cyan-400 tracking-wide flex items-center gap-2" data-i18n="diagram_sigma">
+              <span>〰️</span> Normal Stress
+            </h4>
+            <span class="text-xs sm:text-sm font-mono font-bold px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-cyan-400 border border-sky-200 dark:border-sky-800">[MPa]</span>
+          </div>
+          <div class="diagram-canvas-wrap" title="Click or drag to inspect height z">
+            <canvas id="canvasSigma"></canvas>
+          </div>
+        </div>
+
+        <!-- 3. Vertical Shear Stress -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm sm:text-base font-bold text-amber-600 dark:text-amber-400 tracking-wide flex items-center gap-2" data-i18n="diagram_tauY">
+              <span>⚡</span> Vertical Shear Stress
+            </h4>
+            <span class="text-xs sm:text-sm font-mono font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">[MPa]</span>
+          </div>
+          <div class="diagram-canvas-wrap" title="Click or drag to inspect height z">
+            <canvas id="canvasTauY"></canvas>
+          </div>
+        </div>
+
+        <!-- 4. Horizontal Shear Stress -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm sm:text-base font-bold text-amber-600 dark:text-amber-400 tracking-wide flex items-center gap-2" data-i18n="diagram_tauZ">
+              <span>↔️</span> Horizontal Shear Stress
+            </h4>
+            <span class="text-xs sm:text-sm font-mono font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">[MPa]</span>
+          </div>
+          <div class="diagram-canvas-wrap" title="Click or drag to inspect width y">
+            <canvas id="canvasTauZ"></canvas>
+          </div>
+        </div>
+
+        <!-- 5. Stress State Viewport -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 tracking-wide flex items-center gap-2" data-i18n="elementTitle">
+              <span>📦</span> Stress State
+            </h4>
+            <div class="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+              <button type="button" id="btnElemModeStd" class="px-2 py-0.5 rounded-md text-[11px] font-mono transition-all bg-white dark:bg-slate-700 text-sky-600 dark:text-cyan-400 font-bold shadow-xs cursor-pointer" data-i18n="elementModeStd">Standard</button>
+              <button type="button" id="btnElemModePrin" class="px-2 py-0.5 rounded-md text-[11px] font-mono transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer" data-i18n="elementModePrin">Principal</button>
+            </div>
+          </div>
+          <div class="diagram-canvas-wrap cursor-default" title="Stress state at current elevation probe z">
+            <canvas id="canvasElement"></canvas>
+          </div>
+        </div>
+
+        <!-- 6. Mohr's Circle of Stress -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 tracking-wide flex items-center gap-2" data-i18n="mohrTitle">
+              <span>⭕</span> Mohr's Circle of Stress
+            </h4>
+            <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">In-Plane</span>
+          </div>
+          <div class="diagram-canvas-wrap cursor-default" title="In-plane principal stresses & maximum shear">
+            <canvas id="canvasMohr"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- LIVE READOUT VALUES CARD (DIRECTLY UNDER 6 VIEWPORTS) -->
+      <div class="glass-panel rounded-2xl p-5 shadow-sm">
+        <h4 class="text-sm sm:text-base uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 mb-3 flex items-center justify-between">
+          <span>Live Elevation Slice Readout</span>
+          <span class="text-sm sm:text-base font-mono text-amber-600 dark:text-amber-400 font-bold">@ <span class="font-serif italic font-semibold">z</span> = <span id="readout_yNA_badge">0.0 cm</span></span>
+        </h4>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+          <!-- Elevation from NA (z, downward positive) -->
+          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeElevFromNA">Elevation <span class="font-serif italic">z</span> (from N-A, ↓)</span>
+            <span id="readout_yNA" class="font-mono font-bold text-base sm:text-lg text-amber-600 dark:text-amber-400">0.0 cm</span>
+          </div>
+          <!-- Elevation from bottom -->
+          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeElevFromBot">Height from bottom (<span class="font-serif italic">y</span>)</span>
+            <span id="readout_yBot" class="font-mono font-bold text-base sm:text-lg text-slate-800 dark:text-slate-200">-- cm</span>
+          </div>
+          <!-- Width b(z) -->
+          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeWidth">Effective Width <span class="font-serif italic">b</span>(<i>z</i>)</span>
+            <span id="readout_b" class="font-mono font-bold text-base sm:text-lg text-slate-800 dark:text-slate-200">-- cm</span>
+          </div>
+          <!-- First moment Sy(z) -->
+          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeSy">Static Moment <span class="font-serif italic">S</span><sub class="font-sans">y</sub>(<i>z</i>)</span>
+            <span id="readout_Sy" class="font-mono font-bold text-base sm:text-lg text-slate-800 dark:text-slate-200">-- cm³</span>
+          </div>
+          <!-- Normal stress -->
+          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeSigma">Normal Stress <span class="font-serif italic">σ</span>(<i>z</i>)</span>
+            <span id="readout_sigma" class="font-mono font-bold text-base sm:text-lg text-sky-600 dark:text-cyan-400">-- MPa</span>
+          </div>
+          <!-- Vertical shear stress -->
+          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeTauY">Vert Shear <span class="font-serif italic">τ</span><sub class="font-sans">z</sub>(<i>z</i>)</span>
+            <span id="readout_tau" class="font-mono font-bold text-base sm:text-lg text-amber-600 dark:text-amber-400">-- MPa</span>
+          </div>
+          <!-- Peak horizontal shear stress -->
+          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeTauZ">Horiz Shear <span class="font-serif italic">τ</span><sub class="font-sans">y,max</sub></span>
+            <span id="readout_tauZ" class="font-mono font-bold text-base sm:text-lg text-amber-600 dark:text-amber-400">-- MPa</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP DERIVATIONS / KATEX PROOFS -->
+      <div class="glass-panel rounded-2xl p-6 shadow-sm">
+        <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2" data-i18n="derivationsTitle">
+          <span>📝</span> Analytical Calculations & Step-by-Step Proofs
+        </h3>
+        <div id="derivationsContainer">
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 4. SHARE MODAL                             -->
+  <!-- ========================================== -->
+  <div id="modalShare" class="modal-overlay">
+    <div class="modal-content p-6 sm:p-7 relative bg-white border border-slate-200 shadow-2xl rounded-2xl">
+      <button id="btnCloseShareModal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 text-lg">✕</button>
+
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-lg">🔗</div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900" data-i18n="shareModalTitle">Share Beam Stress Model</h3>
+          <p class="text-xs text-slate-500" data-i18n="shareModalDesc">Anyone with this link or QR code can instantly inspect your cross-section stresses.</p>
+        </div>
+      </div>
+
+      <!-- Link URL Input & Copy Button -->
+      <div class="flex gap-2 my-4">
+        <input type="text" id="inpShareUrl" readonly class="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-indigo-600 focus:outline-none select-all">
+        <button id="btnCopyShareUrl" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold text-white rounded-lg transition-colors whitespace-nowrap" data-i18n="copyLinkBtn">
+          Copy Link
+        </button>
+      </div>
+
+      <!-- QR Code Canvas -->
+      <div class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-200">
+        <canvas id="shareQrCanvas" width="240" height="240" class="rounded-lg shadow-sm"></canvas>
+        <button id="btnDownloadQr" class="mt-3 text-xs text-slate-600 hover:text-indigo-600 flex items-center gap-1.5 transition-colors font-medium">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <span data-i18n="downloadQrBtn">Download QR PNG</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="appToast" class="app-toast">Link copied to clipboard!</div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-200 bg-white py-4 px-6 text-center text-xs text-slate-500 mt-8">
+    <p>© 2026 <a href="https://structlab.tech" class="text-slate-700 font-semibold hover:text-indigo-600 transition-colors">StructLab.tech</a> — Civil & Structural Engineering Mechanics Toolkit. Offline ready, client-side verified.</p>
+  </footer>
+
+  <!-- MAIN SCRIPT -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
