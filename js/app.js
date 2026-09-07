@@ -16,10 +16,10 @@ import { ShareManager } from './share.js';
 class StressCalculatorApp {
   constructor() {
     this.state = {
-      shapeType: 'rect',
-      params: { b: 16, h: 24 },
-      moments: { My: 450, Mz: 0 },
-      shears: { Vz: 80, Vy: 0 },
+      shapeType: 'ibeam',
+      params: { ...PRESETS.ibeam[0].params },
+      moments: { My: 50, Mz: 0 },
+      shears: { Vz: 50, Vy: 0 },
       probeY: 0,
       probeZ: 0,
       lang: 'en',
@@ -656,9 +656,9 @@ class StressCalculatorApp {
       const f = this.analysis.forces || {};
       const sh = this.analysis.shears || {};
       const mo = this.analysis.moments || {};
-      const My = mo.My ?? f.My_kNm ?? 120;
+      const My = mo.My ?? f.My_kNm ?? 50;
       const Mz = mo.Mz ?? f.Mz_kNm ?? 0;
-      const Tz = sh.Vz ?? f.Vz_kN ?? 80;
+      const Tz = sh.Vz ?? f.Vz_kN ?? 50;
       const Ty = sh.Vy ?? f.Vy_kN ?? 0;
       const beta = this.analysis.neutralAxis?.betaDeg ?? 90;
       forcesEl.innerHTML = `

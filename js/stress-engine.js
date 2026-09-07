@@ -20,15 +20,15 @@ export class StressEngine {
    */
   static analyze(section, input, material, options = {}) {
     const convention = options.convention || 'sagging_positive';
-    let My_kNm = 120;
-    let Mz_kNm = 40;
-    let Vz_kN = 80;
+    let My_kNm = 50;
+    let Mz_kNm = 0;
+    let Vz_kN = 50;
     let Vy_kN = 0;
 
     if (input && (input.My !== undefined || input.Mz !== undefined)) {
       My_kNm = Number(input.My) || 0;
       Mz_kNm = Number(input.Mz) || 0;
-      Vz_kN = Number(input.Vz !== undefined ? input.Vz : (input.V ?? 80)) || 0;
+      Vz_kN = Number(input.Vz !== undefined ? input.Vz : (input.V ?? 50)) || 0;
       Vy_kN = Number(input.Vy) || 0;
     } else if (input && (input.F !== undefined || input.alpha !== undefined)) {
       // Legacy F, alpha, L fallback
