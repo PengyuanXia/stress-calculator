@@ -377,37 +377,272 @@ body.dark .probe-slider::-webkit-slider-thumb {
 }
 
 /* Print Friendly Styles */
+/* ========================================== */
+/* Formal Print / PDF Calculation Report      */
+/* ========================================== */
 @media print {
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
+  @page {
+    margin: 8mm 10mm 10mm 10mm;
+    size: A4 portrait;
   }
 
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10pt !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Hide interactive / non-report UI elements */
   #structlab-universal-bar,
+  header,
   .sidebar-panel,
   .probe-control-bar,
+  .interactive-guidance-banner,
   .action-buttons,
-  .modal-overlay {
+  .modal-overlay,
+  #appToast,
+  footer {
     display: none !important;
+  }
+
+  /* Show formal report header & footer */
+  #printReportHeader {
+    display: block !important;
+  }
+
+  #printReportFooter {
+    display: block !important;
   }
 
   .main-content {
     width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    display: block !important;
+  }
+
+  /* Compact 3x2 Grid for Diagram Viewports */
+  .viewports-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .diagram-card {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 6px 8px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    break-inside: avoid !important;
+  }
+
+  .diagram-card h4 {
+    font-size: 9.5px !important;
+    margin-bottom: 3px !important;
   }
 
   .diagram-canvas-wrap {
+    height: 155px !important;
+    min-height: 155px !important;
+    max-height: 155px !important;
     background: #ffffff !important;
-    border: 1px solid #cccccc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 4px !important;
   }
 
+  .diagram-canvas-wrap canvas {
+    height: 155px !important;
+    width: 100% !important;
+    object-fit: contain !important;
+  }
+
+  /* Live Readout Values Table on Print */
+  .readout-grid {
+    display: grid !important;
+    grid-template-columns: 1.35fr 1.22fr 1fr 1fr 0.98fr 0.88fr 0.92fr !important;
+    gap: 4px !important;
+    margin-bottom: 12px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .readout-card {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    padding: 4px 6px !important;
+    background: #f8fafc !important;
+  }
+
+  .readout-title {
+    font-size: 8px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .readout-card span[id^="readout_"] {
+    font-size: 11px !important;
+  }
+
+  /* Glass Panels & Step Cards */
   .glass-panel {
     background: #ffffff !important;
-    border: 1px solid #dddddd !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
     box-shadow: none !important;
+    padding: 10px 14px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .step-card {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 8px !important;
+    background: #ffffff !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .step-card h4 {
+    font-size: 11px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .formula-block {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 6px 8px !important;
+    border-radius: 4px !important;
+    font-size: 9pt !important;
+  }
+
+  .formula-block .katex-display {
+    margin: 3px 0 !important;
   }
 }
+
+/* ========================================== */
+/* On-Screen Print Preview Styles             */
+/* ========================================== */
+body.print-preview {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+body.print-preview #structlab-universal-bar,
+body.print-preview header,
+body.print-preview .sidebar-panel,
+body.print-preview .probe-control-bar,
+body.print-preview .interactive-guidance-banner,
+body.print-preview .action-buttons,
+body.print-preview .modal-overlay,
+body.print-preview #appToast,
+body.print-preview footer {
+  display: none !important;
+}
+
+body.print-preview #printReportHeader,
+body.print-preview #printReportFooter {
+  display: block !important;
+}
+
+body.print-preview .main-content {
+  width: 100% !important;
+  max-width: 960px !important;
+  margin: 20px auto !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+body.print-preview .viewports-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+  margin-bottom: 12px !important;
+}
+
+body.print-preview .diagram-card {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  padding: 6px 8px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body.print-preview .diagram-card h4 {
+  font-size: 9.5px !important;
+  margin-bottom: 3px !important;
+}
+
+body.print-preview .diagram-canvas-wrap {
+  height: 155px !important;
+  min-height: 155px !important;
+  max-height: 155px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 4px !important;
+}
+
+body.print-preview .diagram-canvas-wrap canvas {
+  height: 155px !important;
+  width: 100% !important;
+  object-fit: contain !important;
+}
+
+body.print-preview .readout-grid {
+  display: grid !important;
+  grid-template-columns: 1.35fr 1.22fr 1fr 1fr 0.98fr 0.88fr 0.92fr !important;
+  gap: 4px !important;
+  margin-bottom: 12px !important;
+}
+
+body.print-preview .readout-card {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 4px !important;
+  padding: 4px 6px !important;
+  background: #f8fafc !important;
+}
+
+body.print-preview .readout-title {
+  font-size: 8px !important;
+  margin-bottom: 1px !important;
+}
+
+body.print-preview .readout-card span[id^="readout_"] {
+  font-size: 11px !important;
+}
+
+body.print-preview .glass-panel {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  padding: 10px 14px !important;
+  margin-bottom: 10px !important;
+}
+
+body.print-preview .step-card {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  margin-bottom: 8px !important;
+  background: #ffffff !important;
+}
+
+body.print-preview .formula-block {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 6px 8px !important;
+  border-radius: 4px !important;
+  font-size: 9pt !important;
+}
+
 
 /* ========================================== */
 /* Live Elevation Slice Readout Grid          */

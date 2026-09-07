@@ -108,6 +108,8 @@ export const TRANSLATIONS = {
     // Step-by-Step Derivations
     derivationsTitle: 'Analytical Calculations & Step-by-Step Proofs',
     derivStep1: 'Step 1: Section Geometric Properties',
+    printSectionSummary: 'Section Profile & Geometry',
+    printForcesSummary: 'Applied Internal Forces & Moments',
     derivStep2: 'Step 2: Normal Bending Stress Distribution <i>σ</i>(<i>y</i>)',
     derivStep3: 'Step 3: Shear Stress Distribution <i>τ</i>(<i>y</i>)',
     derivStep4: "Step 4: Principal Stresses & Mohr's Circle at Probe Slice",
@@ -237,6 +239,8 @@ export const TRANSLATIONS = {
     // Step-by-Step Derivations
     derivationsTitle: 'Wyprowadzenia Analityczne Krok po Kroku',
     derivStep1: 'Krok 1: Charakterystyki Geometryczne Przekroju',
+    printSectionSummary: 'Profil i Geometria Przekroju',
+    printForcesSummary: 'Przyłożone Siły Wewnętrzne i Momenty',
     derivStep2: 'Krok 2: Rozkład Naprężeń Normalnych <i>σ</i>(<i>y</i>) (Navier)',
     derivStep3: 'Krok 3: Rozkład Naprężeń Stycznych <i>τ</i>(<i>y</i>)',
     derivStep4: 'Krok 4: Naprężenia Główne i Analiza Koła Mohra',

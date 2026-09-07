@@ -55,18 +55,15 @@
   <!-- ========================================== -->
   <!-- 2. APPLICATION HEADER                      -->
   <!-- ========================================== -->
-  <header class="border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-sm">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl shadow-inner shadow-amber-500/10">
+  <header class="border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-lg shadow-inner shadow-amber-500/10">
         🔬
       </div>
       <div>
-        <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900 flex items-center gap-2" data-i18n="appTitle">
+        <h1 class="text-base font-bold tracking-tight text-slate-900 flex items-center gap-2" data-i18n="appTitle">
           Beam Stress Distribution Calculator
         </h1>
-        <p class="text-xs text-slate-500 hidden sm:block" data-i18n="appSubtitle">
-          Cross-sectional Normal Stress, Shear Stress & Mohr's Circle Analysis
-        </p>
       </div>
     </div>
 
@@ -257,8 +254,40 @@
     <!-- RIGHT COLUMN: SYNCHRONIZED VIEWPORT & ANALYTICS (8 Cols) -->
     <section class="lg:col-span-8 xl:col-span-9 space-y-5 main-content">
 
+      <!-- PRINT REPORT FORMAL HEADER (Visible exclusively in print / PDF export) -->
+      <div id="printReportHeader" class="hidden border-b-2 border-slate-900 pb-3 mb-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="text-[10px] uppercase font-bold tracking-widest text-slate-500 mb-0.5">
+              🏛️ StructLab.tech • Civil & Structural Engineering Mechanics Toolkit
+            </div>
+            <h1 class="text-lg font-bold text-slate-900 leading-tight">
+              Cross-Section Stress Distribution & Mohr's Circle Analytical Report
+            </h1>
+            <div class="text-[11px] text-slate-600 mt-0.5">
+              Classical Navier Normal Stress σ(y,z), Jourawski Shear Stress τ_z(z), τ_y(y) & Principal Stress States
+            </div>
+          </div>
+          <div class="text-right font-mono text-[11px] text-slate-700 border border-slate-300 rounded px-3 py-1.5 bg-slate-50 shrink-0">
+            <div id="printReportDate"><strong>Date:</strong> 2026-09-07</div>
+          </div>
+        </div>
+
+        <!-- PRINT EXECUTIVE SUMMARY -->
+        <div class="grid grid-cols-2 gap-3 text-[11px] font-mono border border-slate-300 rounded-lg p-2.5 bg-slate-50/80 mt-3">
+          <div>
+            <div class="font-bold text-slate-900 uppercase text-[10px] mb-1 border-b border-slate-200 pb-0.5" data-i18n="printSectionSummary">Section Profile & Geometry</div>
+            <div id="printSummaryGeom" class="space-y-0.5 text-slate-700"></div>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 uppercase text-[10px] mb-1 border-b border-slate-200 pb-0.5" data-i18n="printForcesSummary">Applied Internal Forces & Moments</div>
+            <div id="printSummaryForces" class="space-y-0.5 text-slate-700"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- INTERACTIVE GUIDANCE CALLOUT -->
-      <div class="bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-sm text-amber-900 dark:text-amber-200 shadow-sm">
+      <div class="interactive-guidance-banner bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-sm text-amber-900 dark:text-amber-200 shadow-sm">
         <div class="flex items-center gap-2.5">
           <span class="text-xl">💡</span>
           <span class="font-medium text-sm sm:text-base leading-snug" data-i18n="diagramInteractHint">
@@ -271,10 +300,10 @@
       </div>
 
       <!-- 6 SYNCHRONIZED DIAGRAM VIEWPORTS (3x2 Grid: Row 1 = Geometry, Normal Stress, Vertical Shear; Row 2 = Horizontal Shear, Stress State, Mohr Circle) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 viewports-grid">
 
         <!-- 1. Geometry (Cross-Section) -->
-        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+        <div class="diagram-card glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-tight flex items-center gap-1.5" data-i18n="diagram_section">
               <span>📐</span> <span>Cross-Section</span>
@@ -287,7 +316,7 @@
         </div>
 
         <!-- 2. Normal Stress -->
-        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+        <div class="diagram-card glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-sm sm:text-base font-bold text-sky-600 dark:text-cyan-400 tracking-wide flex items-center gap-2" data-i18n="diagram_sigma">
               <span>〰️</span> Normal Stress
@@ -300,7 +329,7 @@
         </div>
 
         <!-- 3. Vertical Shear Stress -->
-        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+        <div class="diagram-card glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-sm sm:text-base font-bold text-amber-600 dark:text-amber-400 tracking-wide flex items-center gap-2" data-i18n="diagram_tauY">
               <span>⚡</span> Vertical Shear Stress
@@ -313,7 +342,7 @@
         </div>
 
         <!-- 4. Horizontal Shear Stress -->
-        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+        <div class="diagram-card glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-sm sm:text-base font-bold text-amber-600 dark:text-amber-400 tracking-wide flex items-center gap-2" data-i18n="diagram_tauZ">
               <span>↔️</span> Horizontal Shear Stress
@@ -326,7 +355,7 @@
         </div>
 
         <!-- 5. Stress State Viewport -->
-        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+        <div class="diagram-card glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 tracking-wide flex items-center gap-2" data-i18n="elementTitle">
               <span>📦</span> Stress State
@@ -342,12 +371,15 @@
         </div>
 
         <!-- 6. Mohr's Circle of Stress -->
-        <div class="glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+        <div class="diagram-card glass-panel rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div class="flex items-center justify-between mb-2">
-            <h4 class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 tracking-wide flex items-center gap-2" data-i18n="mohrTitle">
-              <span>⭕</span> Mohr's Circle of Stress
+            <h4 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-1.5 whitespace-nowrap" data-i18n="mohrTitle">
+              <span>⭕</span> <span>Mohr's Circle</span>
             </h4>
-            <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">In-Plane</span>
+            <div class="flex items-center gap-1 shrink-0">
+              <span class="text-xs font-mono font-bold px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 whitespace-nowrap">[MPa]</span>
+              <span class="text-xs font-mono font-semibold px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 whitespace-nowrap">In-Plane</span>
+            </div>
           </div>
           <div class="diagram-canvas-wrap cursor-default" title="In-plane principal stresses & maximum shear">
             <canvas id="canvasMohr"></canvas>
@@ -409,6 +441,11 @@
         </h3>
         <div id="derivationsContainer">
         </div>
+      </div>
+
+      <!-- PRINT REPORT FORMAL FOOTER (Visible exclusively in print / PDF export) -->
+      <div id="printReportFooter" class="hidden text-center text-[9px] text-slate-500 border-t border-slate-300 pt-2 font-mono">
+        StructLab Beam Stress Distribution Calculator • Formal Analytical Engineering Report • Developed by Pengyuan Xia
       </div>
 
     </section>

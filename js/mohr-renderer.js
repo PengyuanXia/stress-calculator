@@ -16,6 +16,7 @@ export class MohrRenderer {
     this.circCtx = circleCanvas ? circleCanvas.getContext('2d') : null;
     this.elementMode = options.elementMode || 'standard'; // 'standard' | 'principal'
     this.lastStressPt = null;
+    this.lastAnalysis = null;
     this.options = {
       theme: 'light', // 'light' (default) | 'dark'
       ...options
@@ -29,7 +30,7 @@ export class MohrRenderer {
   setElementMode(mode) {
     this.elementMode = mode;
     if (this.lastStressPt) {
-      this.renderStressElement(this.lastStressPt);
+      this.renderStressElement(this.lastStressPt, this.lastAnalysis);
     }
   }
 
@@ -47,18 +48,19 @@ export class MohrRenderer {
     });
   }
 
-  render(stressPt) {
+  render(stressPt, analysis = null) {
     if (!stressPt) return;
     this.lastStressPt = stressPt;
+    if (analysis) this.lastAnalysis = analysis;
     this.resize();
-    this.renderStressElement(stressPt);
-    this.renderMohrsCircle(stressPt);
+    this.renderStressElement(stressPt, analysis || this.lastAnalysis);
+    this.renderMohrsCircle(stressPt, analysis || this.lastAnalysis);
   }
 
   // ==========================================
   // 1. 2D INFINITESIMAL STRESS ELEMENT
   // ==========================================
-  renderStressElement(pt) {
+  renderStressElement(pt, analysis = null) {
     const canvas = this.elemCanvas;
     const ctx = this.elemCtx;
     if (!canvas || !ctx) return;
@@ -167,9 +169,11 @@ export class MohrRenderer {
       ctx.fillText('2', 0, -half + 11);
 
       // Principal stress 1 arrows on face 1 (x' = +half and -half)
+      const maxPRef = Math.max(analysis?.extrema?.maxSigmaAbs ?? 0, Math.abs(sigma1), Math.abs(sigma2), 10);
       const isTens1 = sigma1 >= 0;
       const col1 = isTens1 ? (isDark ? '#38bdf8' : '#0284c7') : (isDark ? '#f43f5e' : '#e11d48');
-      const arrowLen1 = Math.min(36, Math.max(14, Math.abs(sigma1) * 0.45));
+      const p1Ratio = Math.min(1, Math.abs(sigma1) / maxPRef);
+      const arrowLen1 = Math.min(38, Math.max(8, 8 + p1Ratio * 28));
 
       if (Math.abs(sigma1) > 0.05) {
         ctx.save();
@@ -190,7 +194,8 @@ export class MohrRenderer {
       // Principal stress 2 arrows on face 2 (y' = -half and +half)
       const isTens2 = sigma2 >= 0;
       const col2 = isTens2 ? (isDark ? '#38bdf8' : '#0284c7') : (isDark ? '#f43f5e' : '#e11d48');
-      const arrowLen2 = Math.min(36, Math.max(14, Math.abs(sigma2) * 0.45));
+      const p2Ratio = Math.min(1, Math.abs(sigma2) / maxPRef);
+      const arrowLen2 = Math.min(38, Math.max(8, 8 + p2Ratio * 28));
 
       if (Math.abs(sigma2) > 0.05) {
         ctx.save();
@@ -219,7 +224,7 @@ export class MohrRenderer {
 
       // 4. Summary labels below element for Principal Mode
       this.drawMathText(ctx, `σ_1 = ${sigma1 >= 0 ? '+' : ''}${sigma1.toFixed(1)} MPa`, cx, h - 46, { align: 'center', baseSize: 13 });
-      this.drawMathText(ctx, `σ_2 = ${sigma2 >= 0 ? '+' : ''}${sigma2.toFixed(1)} MPa`, cx, h - 27, { align: 'center', baseSize: 13 });
+      this.drawMathText(ctx, `σ_2 = ${sigma2.toFixed(1)} MPa`, cx, h - 27, { align: 'center', baseSize: 13 });
       this.drawMathText(ctx, `θ_p = ${thetaPDeg >= 0 ? '+' : ''}${thetaPDeg.toFixed(1)}°`, cx, h - 8, { align: 'center', baseSize: 13 });
 
     } else {
@@ -239,7 +244,10 @@ export class MohrRenderer {
       const isTens = sigma >= 0;
       const sigmaColor = isTens ? (isDark ? '#38bdf8' : '#0284c7') : (isDark ? '#f43f5e' : '#e11d48');
       const tauColor = tau < 0 ? (isDark ? '#f43f5e' : '#e11d48') : (isDark ? '#f59e0b' : '#d97706');
-      const arrowLen = Math.min(36, Math.max(14, Math.abs(sigma) * 0.45));
+
+      const maxSigRef = Math.max(analysis?.extrema?.maxSigmaAbs ?? 0, Math.abs(sigma), 10);
+      const sigRatio = Math.min(1, Math.abs(sigma) / maxSigRef);
+      const arrowLen = Math.min(38, Math.max(8, 8 + sigRatio * 28));
 
       // Normal Stress arrows
       if (Math.abs(sigma) > 0.05) {
@@ -258,14 +266,19 @@ export class MohrRenderer {
         ctx.restore();
       }
 
-      // Shear Stress arrows on 4 faces
+      // Shear Stress arrows on 4 faces (dynamically extending / shortening with tau)
+      const maxTauRef = Math.max(analysis?.extrema?.maxTauY ?? 0, analysis?.extrema?.maxTauZAbs ?? 0, Math.abs(tau), 1);
+      const tauRatio = Math.min(1, Math.abs(tau) / maxTauRef);
+      const maxTauLen = size * 0.78;
+      const minTauLen = 10;
+      const tauLen = minTauLen + tauRatio * (maxTauLen - minTauLen);
+
       if (Math.abs(tau) > 0.05) {
         ctx.save();
         ctx.strokeStyle = tauColor;
         ctx.fillStyle = tauColor;
         ctx.lineWidth = 2.0;
         const tauArrowMargin = 7;
-        const tauLen = half * 0.8;
 
         if (tau > 0) {
           this.drawArrow(ctx, cx + half + tauArrowMargin, cy + tauLen / 2, cx + half + tauArrowMargin, cy - tauLen / 2, 5);
@@ -300,7 +313,7 @@ export class MohrRenderer {
   // ==========================================
   // 2. MOHR'S CIRCLE CANVAS
   // ==========================================
-  renderMohrsCircle(pt) {
+  renderMohrsCircle(pt, analysis = null) {
     const canvas = this.circCanvas;
     const ctx = this.circCtx;
     if (!canvas || !ctx) return;
@@ -318,25 +331,30 @@ export class MohrRenderer {
     ctx.fillStyle = isDark ? '#090d16' : '#ffffff';
     ctx.fillRect(0, 0, w, h);
 
-    const sigma = pt.sigma;
-    const tau = pt.tauSigned;
+    const sigma = pt.sigma ?? 0;
+    const tau = pt.tauSigned ?? 0;
     const sigmaAvg = sigma / 2;
-    const R = Math.max(0.1, pt.tauMaxInPlane);
-    const sigma1 = pt.sigma1;
-    const sigma2 = pt.sigma2;
+    const R = Math.max(0.0001, pt.tauMaxInPlane ?? 0);
+    const sigma1 = pt.sigma1 ?? 0;
+    const sigma2 = pt.sigma2 ?? 0;
 
-    const maxVal = Math.max(
+    // Use global maximum stress envelope across the whole cross-section for consistent scaling
+    const globalMax = Math.max(
+      analysis?.extrema?.maxSigmaAbs ?? 0,
+      analysis?.extrema?.maxTauY ?? 0,
+      analysis?.extrema?.maxTauZAbs ?? 0,
       Math.abs(sigma1),
       Math.abs(sigma2),
       Math.abs(sigmaAvg) + R,
-      R * 1.3,
-      10
+      R,
+      0.05
     );
 
-    const pad = 36;
-    const usableW = w - 2 * pad;
-    const usableH = h - 2 * pad;
-    const scale = Math.min(usableW / (2.6 * maxVal), usableH / (2.4 * maxVal));
+    const padX = 24;
+    const padY = 22;
+    const usableHalfW = (w / 2) - padX;
+    const usableHalfH = (h / 2) - padY;
+    const scale = Math.min(usableHalfW / (globalMax * 1.18), usableHalfH / (globalMax * 1.18));
 
     const cx = w / 2;
     const cy = h / 2;
@@ -352,21 +370,21 @@ export class MohrRenderer {
 
     // Horizontal \sigma axis
     ctx.beginPath();
-    ctx.moveTo(14, cy);
-    ctx.lineTo(w - 14, cy);
+    ctx.moveTo(10, cy);
+    ctx.lineTo(w - 10, cy);
     ctx.stroke();
-    this.drawArrow(ctx, w - 24, cy, w - 12, cy, 5);
+    this.drawArrow(ctx, w - 20, cy, w - 8, cy, 5);
 
     // Vertical \tau axis
     ctx.beginPath();
-    ctx.moveTo(cx, h - 14);
-    ctx.lineTo(cx, 14);
+    ctx.moveTo(cx, h - 10);
+    ctx.lineTo(cx, 10);
     ctx.stroke();
-    this.drawArrow(ctx, cx, 24, cx, 12, 5);
+    this.drawArrow(ctx, cx, 20, cx, 8, 5);
 
-    // Axis labels
-    this.drawMathText(ctx, 'σ [MPa]', w - 14, cy - 8, { align: 'right', baseSize: 11 });
-    this.drawMathText(ctx, 'τ [MPa]', cx + 8, 20, { align: 'left', baseSize: 11 });
+    // Axis labels (academic italic math symbols without unit inside viewport)
+    this.drawMathText(ctx, 'σ', w - 10, cy - 8, { align: 'right', baseSize: 13 });
+    this.drawMathText(ctx, 'τ', cx + 7, 16, { align: 'left', baseSize: 13 });
 
     // 2. Circle
     const centerPx = toPx(sigmaAvg, 0);
@@ -429,12 +447,17 @@ export class MohrRenderer {
     ctx.arc(p2.x, p2.y, 4.5, 0, 2 * Math.PI);
     ctx.fill();
 
-    this.drawMathText(ctx, `σ_1 = ${sigma1.toFixed(1)}`, p1.x, p1.y + 16, { align: 'center', baseSize: 11 });
-    this.drawMathText(ctx, `σ_2 = ${sigma2.toFixed(1)}`, p2.x, p2.y + 16, { align: 'center', baseSize: 11 });
+    if (Math.abs(p1.x - p2.x) < 56) {
+      this.drawMathText(ctx, `σ_1 = ${sigma1.toFixed(1)}`, p1.x + 4, p1.y + 14, { align: 'left', baseSize: 11 });
+      this.drawMathText(ctx, `σ_2 = ${sigma2.toFixed(1)}`, p2.x - 4, p2.y + 26, { align: 'right', baseSize: 11 });
+    } else {
+      this.drawMathText(ctx, `σ_1 = ${sigma1.toFixed(1)}`, p1.x, p1.y + 16, { align: 'center', baseSize: 12 });
+      this.drawMathText(ctx, `σ_2 = ${sigma2.toFixed(1)}`, p2.x, p2.y + 16, { align: 'center', baseSize: 12 });
+    }
 
     // Max Shear Label on top
     const pTauMax = toPx(sigmaAvg, R);
-    this.drawMathText(ctx, `τ_max = ${R.toFixed(1)}`, pTauMax.x, pTauMax.y - 8, { align: 'center', baseSize: 11 });
+    this.drawMathText(ctx, `τ_max = ${R.toFixed(1)}`, pTauMax.x, Math.max(14, pTauMax.y - 8), { align: 'center', baseSize: 12 });
 
     ctx.restore();
   }

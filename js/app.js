@@ -104,6 +104,12 @@ class StressCalculatorApp {
     this.updateLanguage(this.state.lang);
     this.recalculate();
 
+    if (urlParams.has('printPreview')) {
+      document.body.classList.add('print-preview');
+      this.updatePrintSummary();
+      setTimeout(() => this.render(), 100);
+    }
+
     window.addEventListener('resize', () => {
       if (this.diagramRenderer) this.diagramRenderer.resizeCanvases();
       if (this.mohrRenderer) this.mohrRenderer.resize();
@@ -298,8 +304,15 @@ class StressCalculatorApp {
     // 8. Print Report Button
     const btnPrint = document.getElementById('btnPrintReport');
     if (btnPrint) {
-      btnPrint.addEventListener('click', () => window.print());
+      btnPrint.addEventListener('click', () => {
+        this.updatePrintSummary();
+        window.print();
+      });
     }
+
+    window.addEventListener('beforeprint', () => {
+      this.updatePrintSummary();
+    });
 
     // 9. Stress Element Mode Toggle (Standard vs Principal)
     const btnElemStd = document.getElementById('btnElemModeStd');
@@ -527,7 +540,7 @@ class StressCalculatorApp {
   renderSecondary() {
     if (!this.analysis) return;
     const probePt = this.analysis.evaluateAt(this.state.probeY);
-    if (this.mohrRenderer) this.mohrRenderer.render(probePt);
+    if (this.mohrRenderer) this.mohrRenderer.render(probePt, this.analysis);
     if (this.derivationRenderer) this.derivationRenderer.render(this.section, this.analysis, probePt, this.state.lang);
   }
 
@@ -611,6 +624,55 @@ class StressCalculatorApp {
       if (labelZMin) labelZMin.textContent = `Top: ${zTopCm.toFixed(1)} cm`;
       if (labelZMax) labelZMax.textContent = `Bot: +${zBotCm.toFixed(1)} cm`;
     }
+
+    this.updatePrintSummary();
+  }
+
+  updatePrintSummary() {
+    const isPl = this.state.lang === 'pl';
+    const dateEl = document.getElementById('printReportDate');
+    if (dateEl) {
+      dateEl.innerHTML = `<strong>${isPl ? 'Data:' : 'Date:'}</strong> ${new Date().toLocaleDateString(isPl ? 'pl-PL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+    }
+
+    const geomEl = document.getElementById('printSummaryGeom');
+    if (geomEl && this.section) {
+      const s = this.section;
+      const Iy_cm4 = (s.Iz / 1e4).toFixed(1);
+      const Iz_cm4 = ((s.Iy || s.Iz) / 1e4).toFixed(1);
+      const A_cm2 = (s.area / 100).toFixed(1);
+      const zBot_cm = (s.yBar / 10).toFixed(1);
+      const shapeName = this.t(`shape_${this.state.shapeType}`);
+      geomEl.innerHTML = `
+        <div>• <strong>${isPl ? 'Przekrój:' : 'Section Profile:'}</strong> ${shapeName}</div>
+        <div>• <strong>${isPl ? 'Wymiary:' : 'Dimensions:'}</strong> ${this.formatSectionParams(this.state.params)}</div>
+        <div>• <strong>${isPl ? 'Pole & Śr. ciężkości:' : 'Area & Centroid:'}</strong> <i>A</i> = ${A_cm2} cm², <i>z̄</i><sub>bot</sub> = ${zBot_cm} cm</div>
+        <div>• <strong>${isPl ? 'Momenty bezwładności:' : 'Moments of Inertia:'}</strong> <i>I</i><sub>y</sub> = ${Iy_cm4} cm⁴, <i>I</i><sub>z</sub> = ${Iz_cm4} cm⁴</div>
+      `;
+    }
+
+    const forcesEl = document.getElementById('printSummaryForces');
+    if (forcesEl && this.analysis) {
+      const f = this.analysis.forces || {};
+      const sh = this.analysis.shears || {};
+      const mo = this.analysis.moments || {};
+      const My = mo.My ?? f.My_kNm ?? 120;
+      const Mz = mo.Mz ?? f.Mz_kNm ?? 0;
+      const Tz = sh.Vz ?? f.Vz_kN ?? 80;
+      const Ty = sh.Vy ?? f.Vy_kN ?? 0;
+      const beta = this.analysis.neutralAxis?.betaDeg ?? 90;
+      forcesEl.innerHTML = `
+        <div>• <strong>${isPl ? 'Momenty gnące:' : 'Bending Moments:'}</strong> <i>M</i><sub>y</sub> = ${My >= 0 ? '+' : ''}${My.toFixed(1)} kNm, <i>M</i><sub>z</sub> = ${Mz >= 0 ? '+' : ''}${Mz.toFixed(1)} kNm</div>
+        <div>• <strong>${isPl ? 'Siły tnące:' : 'Shear Forces:'}</strong> <i>T</i><sub>z</sub> = ${Tz >= 0 ? '+' : ''}${Tz.toFixed(1)} kN, <i>T</i><sub>y</sub> = ${Ty >= 0 ? '+' : ''}${Ty.toFixed(1)} kN</div>
+        <div>• <strong>${isPl ? 'Oś obojętna (N-A):' : 'Neutral Axis (N-A):'}</strong> <i>β</i> = ${beta.toFixed(1)}°</div>
+        <div>• <strong>${isPl ? 'Badana wysokość:' : 'Inspected Elevation:'}</strong> <i>z</i> = ${(this.state.probeY / 10).toFixed(1)} cm</div>
+      `;
+    }
+  }
+
+  formatSectionParams(params) {
+    if (!params) return '';
+    return Object.entries(params).map(([k, v]) => `<i>${k}</i> = ${v} cm`).join(', ');
   }
 
   updateLanguage(lang) {

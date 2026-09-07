@@ -266,14 +266,14 @@ export class DiagramRenderer {
 
     const scaleY = usableH / this.section.h;
     const maxScaleX = (usableW * 0.58) / Math.max(1, this.section.bMax);
-    const scale = Math.min(scaleY, maxScaleX);
+    const scaleX = Math.min(scaleY, maxScaleX);
 
     const cx = w / 2;
     const cyNA = this.yToPx(0, h);
 
     const mmToCanvas = (x, y) => ({
-      x: cx + x * scale,
-      y: cyNA - y * scale
+      x: cx + x * scaleX,
+      y: this.yToPx(y, h)
     });
 
     const polys = this.section.getBoundaryPolygons();
@@ -357,7 +357,7 @@ export class DiagramRenderer {
       ctx.restore();
     }
 
-    const beamRight = cx + (this.section.bMax / 2) * scale;
+    const beamRight = cx + (this.section.bMax / 2) * scaleX;
     const rightDimX = w - 18;
 
     // 3. Probe Guideline (drawn before badges/text so line goes behind)
@@ -478,10 +478,10 @@ export class DiagramRenderer {
     ctx.restore();
 
     // 5. Draw Applied Moments (My and Mz with Double Arrows: +z down, +y left)
-    this.drawAppliedMoments(ctx, w, h, cx, cyNA, scale);
+    this.drawAppliedMoments(ctx, w, h, cx, cyNA, scaleX);
 
     // 6. Draw Dimensions (clean outer margin layout on top)
-    this.drawSectionDimensions(ctx, w, h, scale, cx, cyNA);
+    this.drawSectionDimensions(ctx, w, h, scaleX, cx, cyNA);
 
     ctx.restore();
   }
@@ -1520,18 +1520,18 @@ export class DiagramRenderer {
     ctx.restore();
   }
 
-  drawSectionDimensions(ctx, w, h, scale, cx, cyNA) {
+  drawSectionDimensions(ctx, w, h, scaleX, cx, cyNA) {
     const isDark = this.options.theme === 'dark';
     const sec = this.section;
     ctx.save();
     ctx.font = 'bold 11px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
 
-    const beamRight = cx + (sec.bMax / 2) * scale;
-    const beamLeft = cx - (sec.bMax / 2) * scale;
+    const beamRight = cx + (sec.bMax / 2) * scaleX;
+    const beamLeft = cx - (sec.bMax / 2) * scaleX;
     // Move vertical dimension sign to near the right edge as requested
     const rightX = w - 18;
-    const topY = cyNA - sec.yTop * scale;
-    const botY = cyNA - sec.yBot * scale;
+    const topY = this.yToPx(sec.yTop, h);
+    const botY = this.yToPx(sec.yBot, h);
 
     // Witness extension lines for height (subtle dashed lines)
     ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.15)';
