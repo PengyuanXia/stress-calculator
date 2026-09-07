@@ -287,7 +287,21 @@ class StressCalculatorApp {
       btnCopyEmail.addEventListener('click', () => this.copyEmailToClipboard());
     }
 
-    // 6. Share Button
+    // 6a. Save Model Button
+    const btnSave = document.getElementById('btnSaveModel');
+    if (btnSave) {
+      btnSave.addEventListener('click', () => this.saveModelJSON());
+    }
+
+    // 6b. Load Model Button
+    const btnLoad = document.getElementById('btnLoadModel');
+    const inpModelFile = document.getElementById('inpModelFile');
+    if (btnLoad && inpModelFile) {
+      btnLoad.addEventListener('click', () => inpModelFile.click());
+      inpModelFile.addEventListener('change', (e) => this.loadModelJSON(e));
+    }
+
+    // 6c. Share Button
     const btnShare = document.getElementById('btnShare');
     if (btnShare) {
       btnShare.addEventListener('click', () => {
@@ -812,6 +826,100 @@ class StressCalculatorApp {
     } catch (e) {
       console.error('Export PNG failed:', e);
     }
+  }
+
+  saveModelJSON() {
+    try {
+      const exportData = {
+        version: "1.0",
+        appName: "StructLab Beam Stress Distribution Calculator",
+        timestamp: new Date().toISOString(),
+        model: {
+          shapeType: this.state.shapeType,
+          params: { ...this.state.params },
+          moments: { ...this.state.moments },
+          shears: { ...this.state.shears },
+          probeY: this.state.probeY,
+          probeZ: this.state.probeZ,
+          elemMode: this.state.elemMode || 'standard',
+          convention: this.state.convention || 'sagging_positive'
+        }
+      };
+
+      const jsonStr = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      link.download = `stress_model_${this.state.shapeType}_${dateStr}.json`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      if (this.shareManager) {
+        this.shareManager.showToast(this.t('toastSaveSuccess'));
+      }
+    } catch (e) {
+      console.error('Save model failed:', e);
+    }
+  }
+
+  loadModelJSON(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        const model = data.model || data;
+
+        if (model.shapeType) this.state.shapeType = model.shapeType;
+        if (model.params) this.state.params = { ...model.params };
+        if (model.moments) {
+          if (typeof model.moments.My === 'number') this.state.moments.My = model.moments.My;
+          if (typeof model.moments.Mz === 'number') this.state.moments.Mz = model.moments.Mz;
+        }
+        if (model.shears) {
+          if (typeof model.shears.Vz === 'number') this.state.shears.Vz = model.shears.Vz;
+          if (typeof model.shears.Vy === 'number') this.state.shears.Vy = model.shears.Vy;
+        }
+        if (typeof model.probeY === 'number') this.state.probeY = model.probeY;
+        if (typeof model.probeZ === 'number') this.state.probeZ = model.probeZ;
+        if (model.elemMode) this.state.elemMode = model.elemMode;
+        if (model.convention) this.state.convention = model.convention;
+
+        // Update UI inputs
+        const inpMy = document.getElementById('inpMy');
+        const inpMz = document.getElementById('inpMz');
+        const inpVz = document.getElementById('inpVz');
+        const inpVy = document.getElementById('inpVy');
+        if (inpMy) inpMy.value = this.state.moments.My;
+        if (inpMz) inpMz.value = this.state.moments.Mz;
+        if (inpVz) inpVz.value = this.state.shears.Vz;
+        if (inpVy) inpVy.value = this.state.shears.Vy;
+
+        document.querySelectorAll('.shape-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.shape === this.state.shapeType);
+        });
+
+        this.populatePresetsDropdown();
+        this.rebuildParamInputs();
+        this.recalculate();
+
+        if (this.shareManager) {
+          this.shareManager.showToast(this.t('toastLoadSuccess'));
+        }
+      } catch (err) {
+        console.error('Failed to parse model JSON:', err);
+        if (this.shareManager) {
+          this.shareManager.showToast(this.t('toastLoadError'));
+        }
+      } finally {
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
   }
 }
 
