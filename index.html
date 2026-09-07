@@ -363,40 +363,40 @@
           <span class="text-sm sm:text-base font-mono text-amber-600 dark:text-amber-400 font-bold">@ <span class="font-serif italic font-semibold">z</span> = <span id="readout_yNA_badge">0.0 cm</span></span>
         </h4>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+        <div class="readout-grid">
           <!-- Elevation from NA (z, downward positive) -->
-          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeElevFromNA">Elevation <span class="font-serif italic">z</span> (from N-A, ↓)</span>
+          <div class="readout-card bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <span class="readout-title text-slate-500 dark:text-slate-400" data-i18n="probeElevFromNA">Elevation <span class="font-serif italic">z</span> (from N-A, ↓):</span>
             <span id="readout_yNA" class="font-mono font-bold text-base sm:text-lg text-amber-600 dark:text-amber-400">0.0 cm</span>
           </div>
           <!-- Elevation from bottom -->
-          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeElevFromBot">Height from bottom (<span class="font-serif italic">y</span>)</span>
+          <div class="readout-card bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <span class="readout-title text-slate-500 dark:text-slate-400" data-i18n="probeElevFromBot">Height from bottom (<span class="font-serif italic">y</span>):</span>
             <span id="readout_yBot" class="font-mono font-bold text-base sm:text-lg text-slate-800 dark:text-slate-200">-- cm</span>
           </div>
           <!-- Width b(z) -->
-          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeWidth">Effective Width <span class="font-serif italic">b</span>(<i>z</i>)</span>
+          <div class="readout-card bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <span class="readout-title text-slate-500 dark:text-slate-400" data-i18n="probeWidth">Effective Width <span class="font-serif italic">b</span>(<i>z</i>):</span>
             <span id="readout_b" class="font-mono font-bold text-base sm:text-lg text-slate-800 dark:text-slate-200">-- cm</span>
           </div>
           <!-- First moment Sy(z) -->
-          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeSy">Static Moment <span class="font-serif italic">S</span><sub class="font-sans">y</sub>(<i>z</i>)</span>
+          <div class="readout-card bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <span class="readout-title text-slate-500 dark:text-slate-400" data-i18n="probeSy">Static Moment <span class="font-serif italic">S</span><sub class="font-sans">y</sub>(<i>z</i>):</span>
             <span id="readout_Sy" class="font-mono font-bold text-base sm:text-lg text-slate-800 dark:text-slate-200">-- cm³</span>
           </div>
           <!-- Normal stress -->
-          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeSigma">Normal Stress <span class="font-serif italic">σ</span>(<i>z</i>)</span>
+          <div class="readout-card bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <span class="readout-title text-slate-500 dark:text-slate-400" data-i18n="probeSigma">Normal Stress <span class="font-serif italic">σ</span>(<i>z</i>):</span>
             <span id="readout_sigma" class="font-mono font-bold text-base sm:text-lg text-sky-600 dark:text-cyan-400">-- MPa</span>
           </div>
           <!-- Vertical shear stress -->
-          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeTauY">Vert Shear <span class="font-serif italic">τ</span><sub class="font-sans">z</sub>(<i>z</i>)</span>
+          <div class="readout-card bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <span class="readout-title text-slate-500 dark:text-slate-400" data-i18n="probeTauY">Vert Shear <span class="font-serif italic">τ</span><sub class="font-sans">z</sub>(<i>z</i>):</span>
             <span id="readout_tau" class="font-mono font-bold text-base sm:text-lg text-amber-600 dark:text-amber-400">-- MPa</span>
           </div>
           <!-- Peak horizontal shear stress -->
-          <div class="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-            <span class="block text-xs sm:text-[13px] font-semibold text-slate-500 dark:text-slate-400 mb-1" data-i18n="probeTauZ">Horiz Shear <span class="font-serif italic">τ</span><sub class="font-sans">y,max</sub></span>
+          <div class="readout-card bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <span class="readout-title text-slate-500 dark:text-slate-400" data-i18n="probeTauZ">Horiz Shear <span class="font-serif italic">τ</span><sub class="font-sans">y,max</sub>:</span>
             <span id="readout_tauZ" class="font-mono font-bold text-base sm:text-lg text-amber-600 dark:text-amber-400">-- MPa</span>
           </div>
         </div>
@@ -572,8 +572,50 @@
   <div id="appToast" class="app-toast">Link copied to clipboard!</div>
 
   <!-- FOOTER -->
-  <footer class="border-t border-slate-200 bg-white py-4 px-6 text-center text-xs text-slate-500 mt-8">
-    <p>© 2026 <a href="https://structlab.tech" class="text-slate-700 font-semibold hover:text-indigo-600 transition-colors">StructLab.tech</a> — Civil & Structural Engineering Mechanics Toolkit. Offline ready, client-side verified.</p>
+  <footer class="border-t border-slate-200 bg-white py-6 px-4 sm:px-8 text-xs text-slate-500 mt-12">
+    <div class="max-w-[1720px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand & Creator -->
+      <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 text-center md:text-left">
+        <span class="text-base">🏛️</span>
+        <a href="https://structlab.tech" class="font-bold text-slate-800 hover:text-indigo-600 transition-colors">StructLab.tech</a>
+        <span class="text-slate-300 hidden sm:inline">·</span>
+        <span class="text-slate-600 font-medium">Beam Stress Calculator</span>
+        <span class="text-slate-300 hidden sm:inline">·</span>
+        <span data-i18n="footerCreator">Created by <strong>Pengyuan Xia</strong></span>
+      </div>
+
+      <!-- Links: Contact, Email, GitHub, X, Ko-fi -->
+      <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-5 text-slate-600 font-medium">
+        <button id="btnFooterContact" class="hover:text-indigo-600 transition flex items-center gap-1.5 cursor-pointer text-xs" title="Contact & Feedback">
+          <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+          <span data-i18n="contactBtn">Contact</span>
+        </button>
+
+        <a href="mailto:pengyuan.xia.dokt@pw.edu.pl" class="hover:text-indigo-600 transition flex items-center gap-1.5" title="Send Email">
+          <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          <span>Email</span>
+        </a>
+
+        <a href="https://github.com/PengyuanXia" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 transition flex items-center gap-1.5" title="GitHub Profile">
+          <svg class="w-3.5 h-3.5 text-slate-800" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          <span>GitHub</span>
+        </a>
+
+        <a href="https://x.com/PenguinXia" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 transition flex items-center gap-1.5" title="X (Twitter)">
+          <svg class="w-3.5 h-3.5 text-slate-800" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          <span>@PenguinXia</span>
+        </a>
+
+        <a href="https://ko-fi.com/pengyuanxia" target="_blank" rel="noopener noreferrer" class="hover:text-rose-600 transition flex items-center gap-1.5" title="Buy me a coffee on Ko-fi">
+          <svg class="w-3.5 h-3.5 text-rose-500" viewBox="0 0 24 24" fill="currentColor"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.04-.228-.154-.228-.154s-2.738-2.529-3.985-3.982c-1.399-1.631-.77-4.103 1.055-4.582 1.442-.379 2.766.425 3.308 1.404.544-.979 1.868-1.783 3.31-1.404 1.823.479 2.453 2.951 1.053 4.582zm4.721-1.233c-.279.711-.795 1.258-1.542 1.637.042-.903.042-1.896.012-2.883 1.229.07 1.776.536 1.53 1.246z"/></svg>
+          <span data-i18n="kofiBtn">Buy me a coffee</span>
+        </a>
+      </div>
+
+    </div>
   </footer>
 
   <!-- MAIN SCRIPT -->

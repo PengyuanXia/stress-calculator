@@ -408,3 +408,60 @@ body.dark .probe-slider::-webkit-slider-thumb {
     box-shadow: none !important;
   }
 }
+
+/* ========================================== */
+/* Live Elevation Slice Readout Grid          */
+/* ========================================== */
+.readout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+@media (min-width: 640px) {
+  .readout-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .readout-grid {
+    grid-template-columns: 1.35fr 1.22fr 1fr 1fr 0.98fr 0.88fr 0.92fr;
+    gap: 0.625rem;
+  }
+}
+
+.readout-card {
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.75rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.readout-title {
+  display: block;
+  font-size: 11px;
+  line-height: 1.25;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-bottom: 0.35rem;
+}
+
+@media (min-width: 1280px) {
+  .readout-card {
+    padding: 0.75rem 0.85rem;
+  }
+  .readout-title {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .readout-title {
+    font-size: 12.5px;
+  }
+}
+

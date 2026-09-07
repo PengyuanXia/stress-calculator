@@ -452,15 +452,16 @@ export class DiagramRenderer {
     let badgeX, badgeY;
     if (!isRotated) {
       badgeX = 8;
-      badgeY = cyNA - naH / 2;
+      badgeY = cyNA - naH - 8;
+      badgeY = Math.max(6, Math.min(h - naH - 6, badgeY));
     } else {
       const tBadge = 0.72;
       // Choose upper-half end of line for optimal breathing room
       const side = (uY >= 0) ? -1 : 1;
       badgeX = (cx + side * uX * rLine * tBadge) - naW / 2;
-      badgeY = (cyNA + side * uY * rLine * tBadge) - naH / 2;
+      badgeY = (cyNA + side * uY * rLine * tBadge) - naH - 8;
       badgeX = Math.max(8, Math.min(w - naW - 8, badgeX));
-      badgeY = Math.max(8, Math.min(h - naH - 8, badgeY));
+      badgeY = Math.max(6, Math.min(h - naH - 6, badgeY));
     }
 
     ctx.fillStyle = '#0284c7';
@@ -580,14 +581,9 @@ export class DiagramRenderer {
       this.drawDoubleArrow(ctx, cx, cyNA, cx, endZ, 9, 8);
 
       // Badge for Mz (academic format with subscript z)
-      const valTextZ = ` = ${Mz >= 0 ? '+' : ''}${Mz.toFixed(1)} kNm`;
-      ctx.font = 'bold 11px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      const wValZ = ctx.measureText(valTextZ).width;
-      ctx.font = 'italic bold 11px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      const wMZ = ctx.measureText('M').width;
-      ctx.font = 'bold 9px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      const wSubZ = ctx.measureText('z').width;
-      const bW = wMZ + wSubZ + wValZ + 14;
+      const valTextZ = `M_z = ${Mz >= 0 ? '+' : ''}${Mz.toFixed(1)} kNm`;
+      const totalWZ = this.measureMathText(ctx, valTextZ, { baseSize: 11 });
+      const bW = totalWZ + 14;
       const bH = 20;
       let bX = cx + 10;
       const midZ = (cyNA + endZ) / 2;
@@ -609,17 +605,11 @@ export class DiagramRenderer {
       ctx.fill();
       ctx.stroke();
 
-      const textStartX_Z = bX + (bW - (wMZ + wSubZ + wValZ)) / 2;
-      const textCenterY_Z = bY + bH / 2;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-      ctx.font = 'italic bold 11px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      ctx.fillText('M', textStartX_Z, textCenterY_Z);
-      ctx.font = 'bold 9px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      ctx.fillText('z', textStartX_Z + wMZ, textCenterY_Z + 2.5);
-      ctx.font = 'bold 11px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      ctx.fillText(valTextZ, textStartX_Z + wMZ + wSubZ, textCenterY_Z);
+      this.drawMathText(ctx, valTextZ, bX + bW / 2, bY + bH / 2, {
+        baseSize: 11,
+        align: 'center',
+        color: isDark ? '#f8fafc' : '#000000'
+      });
       ctx.restore();
     }
 
@@ -637,14 +627,9 @@ export class DiagramRenderer {
       this.drawDoubleArrow(ctx, cx, cyNA, endY, cyNA, 9, 8);
 
       // Badge for My (academic format with subscript y)
-      const valTextY = ` = ${My >= 0 ? '+' : ''}${My.toFixed(1)} kNm`;
-      ctx.font = 'bold 11px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      const wValY = ctx.measureText(valTextY).width;
-      ctx.font = 'italic bold 11px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      const wMY = ctx.measureText('M').width;
-      ctx.font = 'bold 9px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      const wSubY = ctx.measureText('y').width;
-      const bW = wMY + wSubY + wValY + 14;
+      const valTextY = `M_y = ${My >= 0 ? '+' : ''}${My.toFixed(1)} kNm`;
+      const totalWY = this.measureMathText(ctx, valTextY, { baseSize: 11 });
+      const bW = totalWY + 14;
       const bH = 20;
 
       // Center horizontally on arrow shaft:
@@ -664,17 +649,103 @@ export class DiagramRenderer {
       ctx.fill();
       ctx.stroke();
 
-      const textStartX_Y = bX + (bW - (wMY + wSubY + wValY)) / 2;
-      const textCenterY_Y = bY + bH / 2;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-      ctx.font = 'italic bold 11px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      ctx.fillText('M', textStartX_Y, textCenterY_Y);
-      ctx.font = 'bold 9px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      ctx.fillText('y', textStartX_Y + wMY, textCenterY_Y + 2.5);
-      ctx.font = 'bold 11px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      ctx.fillText(valTextY, textStartX_Y + wMY + wSubY, textCenterY_Y);
+      this.drawMathText(ctx, valTextY, bX + bW / 2, bY + bH / 2, {
+        baseSize: 11,
+        align: 'center',
+        color: isDark ? '#f8fafc' : '#000000'
+      });
+      ctx.restore();
+    }
+
+    // 4. Draw Shear Force Vector Tz (Single Arrow on vertical z-axis: +z is downward)
+    const shears = this.analysis.shears || {};
+    const Tz = shears.Vz ?? forces.Vz_kN ?? 80;
+    const vColor = isDark ? '#38bdf8' : '#0284c7';
+
+    if (Math.abs(Tz) > 0.05) {
+      const lenTz = Math.min(80, Math.max(42, 32 + Math.abs(Tz) * 0.35));
+      const dirTz = Tz >= 0 ? 1 : -1;
+      const endTz = cyNA + dirTz * lenTz;
+      const cxTz = (Math.abs(Mz) > 0.05) ? cx - 8 : cx;
+
+      ctx.save();
+      ctx.strokeStyle = vColor;
+      ctx.fillStyle = vColor;
+      ctx.lineWidth = 2.6;
+      this.drawArrow(ctx, cxTz, cyNA, cxTz, endTz, 8);
+
+      // Badge for Tz
+      const tzText = `T_z = ${Tz >= 0 ? '+' : ''}${Tz.toFixed(1)} kN`;
+      const tzTotalW = this.measureMathText(ctx, tzText, { baseSize: 11 });
+      const bW = tzTotalW + 14;
+      const bH = 20;
+      let bX = (Math.abs(Mz) > 0.05) ? (cxTz - bW - 8) : (cxTz + 10);
+      const midZ = (cyNA + endTz) / 2;
+      let bY = midZ - bH / 2;
+
+      // Safe clamp to keep badge inside canvas
+      const maxTzRight = rightDimX - 10;
+      if (bX + bW > maxTzRight) {
+        bX = maxTzRight - bW;
+      }
+      bX = Math.max(8, bX);
+      bY = Math.max(8, Math.min(h - bH - 8, bY));
+
+      ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.94)' : 'rgba(255, 255, 255, 0.96)';
+      ctx.strokeStyle = vColor;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.roundRect(bX, bY, bW, bH, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      this.drawMathText(ctx, tzText, bX + bW / 2, bY + bH / 2, {
+        baseSize: 11,
+        align: 'center',
+        color: isDark ? '#f8fafc' : '#000000'
+      });
+      ctx.restore();
+    }
+
+    // 5. Draw Shear Force Vector Ty (Single Arrow on horizontal y-axis: +y is to the left)
+    const Ty = shears.Vy ?? forces.Vy_kN ?? 0;
+    if (Math.abs(Ty) > 0.05) {
+      const lenTy = Math.min(80, Math.max(42, 32 + Math.abs(Ty) * 0.35));
+      const dirTy = Ty >= 0 ? -1 : 1;
+      const endTy = cx + dirTy * lenTy;
+      const cyTy = (Math.abs(My) > 0.05) ? cyNA + 5 : cyNA;
+
+      ctx.save();
+      ctx.strokeStyle = vColor;
+      ctx.fillStyle = vColor;
+      ctx.lineWidth = 2.6;
+      this.drawArrow(ctx, cx, cyTy, endTy, cyTy, 8);
+
+      // Badge for Ty
+      const tyText = `T_y = ${Ty >= 0 ? '+' : ''}${Ty.toFixed(1)} kN`;
+      const tyTotalW = this.measureMathText(ctx, tyText, { baseSize: 11 });
+      const bW = tyTotalW + 14;
+      const bH = 20;
+      const midX = (cx + endTy) / 2;
+      let bX = midX - bW / 2;
+      let bY = cyNA + 12; // Placed below horizontal axis
+
+      bX = Math.max(8, Math.min(w - bW - 8, bX));
+      bY = Math.max(8, Math.min(h - bH - 8, bY));
+
+      ctx.fillStyle = isDark ? 'rgba(15, 23, 42, 0.94)' : 'rgba(255, 255, 255, 0.96)';
+      ctx.strokeStyle = vColor;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.roundRect(bX, bY, bW, bH, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      this.drawMathText(ctx, tyText, bX + bW / 2, bY + bH / 2, {
+        baseSize: 11,
+        align: 'center',
+        color: isDark ? '#f8fafc' : '#000000'
+      });
       ctx.restore();
     }
   }
@@ -716,10 +787,7 @@ export class DiagramRenderer {
     ctx.lineTo(cx, h - padY);
     ctx.stroke();
 
-    ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-    ctx.font = 'bold 12px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('σ = 0', cx, h - padY + 20);
+    this.drawMathText(ctx, 'σ = 0', cx, h - padY + 20, { align: 'center', baseSize: 12 });
 
     if (profile.length > 1) {
       // Tension side (+, right)
@@ -850,10 +918,7 @@ export class DiagramRenderer {
     ctx.lineTo(baseX, h - padY);
     ctx.stroke();
 
-    ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-    ctx.font = 'bold 12px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('τ_z = 0', baseX, h - padY + 20);
+    this.drawMathText(ctx, 'τ_z = 0', baseX, h - padY + 20, { align: 'center', baseSize: 12 });
 
     const profile = this.analysis.profiles.shearY || this.analysis.profiles.shear;
 
@@ -909,11 +974,11 @@ export class DiagramRenderer {
 
     // Peak Tau label
     const cyNA = this.yToPx(0, h);
-    ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-    ctx.font = 'bold 12px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-    ctx.textAlign = isNegative ? 'left' : 'right';
     const peakLabel = isNegative ? `τ_z,min = -${maxTau.toFixed(2)}` : `τ_z,max = +${maxTau.toFixed(2)}`;
-    ctx.fillText(peakLabel, isNegative ? 12 : w - 12, padY - 10);
+    this.drawMathText(ctx, peakLabel, isNegative ? 12 : w - 12, padY - 10, {
+      align: isNegative ? 'left' : 'right',
+      baseSize: 12
+    });
 
     ctx.save();
     ctx.strokeStyle = isDark ? 'rgba(245, 158, 11, 0.35)' : 'rgba(217, 119, 6, 0.3)';
@@ -1011,12 +1076,12 @@ export class DiagramRenderer {
     ctx.textAlign = 'center';
 
     const cx = zToPx(0);
-    // Center tick (z = 0)
+    // Center tick (y = 0)
     ctx.beginPath();
     ctx.moveTo(cx, baseY - 4);
     ctx.lineTo(cx, baseY + 6);
     ctx.stroke();
-    ctx.fillText('z = 0', cx, baseY + 18);
+    this.drawMathText(ctx, 'y = 0', cx, baseY + 18, { align: 'center', baseSize: 11 });
 
     // Left tick (z = zMin)
     const pxLeft = zToPx(zMin);
@@ -1177,10 +1242,7 @@ export class DiagramRenderer {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-        ctx.font = 'bold 13px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(`τ_z,ₘₐₓ = ${maxTauZ.toFixed(2)}`, cx, peakPy - 12);
+        this.drawMathText(ctx, `τ_y,max = ${maxTauZ.toFixed(2)}`, cx, peakPy - 12, { align: 'center', baseSize: 12 });
       }
 
       // Probe readout along z
@@ -1209,13 +1271,10 @@ export class DiagramRenderer {
       ctx.stroke();
 
       const valSign = evalZ.tauZ >= 0 ? '+' : '';
-      this.drawCallout(ctx, probePx, probePy, `τ_z = ${valSign}${evalZ.tauZ.toFixed(2)}`, isDark ? '#fbbf24' : '#d97706');
+      this.drawCallout(ctx, probePx, probePy, `τ_y = ${valSign}${evalZ.tauZ.toFixed(2)}`, isDark ? '#fbbf24' : '#d97706');
     } else {
       // Zero stress message
-      ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-      ctx.font = 'bold 14px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('τ_z = 0.00 MPa', w / 2, h / 2 - 8);
+      this.drawMathText(ctx, 'τ_y = 0.00', w / 2, h / 2 - 8, { align: 'center', baseSize: 13 });
       ctx.font = '12px Outfit, sans-serif';
       ctx.fillStyle = isDark ? '#64748b' : '#94a3b8';
       ctx.fillText('Apply load F > 0 kN to visualize shear distribution', w / 2, h / 2 + 16);
@@ -1324,12 +1383,114 @@ export class DiagramRenderer {
     ctx.restore();
   }
 
+  parseMathTokens(str) {
+    let s = String(str)
+      .replace(/₁/g, '_1')
+      .replace(/₂/g, '_2')
+      .replace(/ₚ/g, '_p')
+      .replace(/ₘₐₓ/g, '_max')
+      .replace(/ₘᵢₙ/g, '_min');
+
+    const tokens = [];
+    const m = s.match(/^([στθMyzTV])(?:_([a-zA-Z0-9,]+)|\(([a-zA-Z0-9,]+)\))?(.*)$/);
+    if (m) {
+      const [, variable, sub, arg, rest] = m;
+      tokens.push({ t: variable, type: 'math' });
+      if (sub) tokens.push({ t: sub, type: 'sub' });
+      if (arg) tokens.push({ t: `(${arg})`, type: 'arg' });
+      if (rest) tokens.push({ t: rest, type: 'text' });
+    } else {
+      tokens.push({ t: s, type: 'text' });
+    }
+    return tokens;
+  }
+
+  measureMathText(ctx, str, options = {}) {
+    const baseSize = options.baseSize || 12;
+    const subSize = options.subSize || Math.round(baseSize * 0.72);
+    const argSize = options.argSize || Math.round(baseSize * 0.88);
+    const tokens = this.parseMathTokens(str);
+
+    const mathFont = `italic 700 ${baseSize + 1}px "KaTeX_Math", "Cambria Math", "Times New Roman", serif`;
+    const subFont = `700 ${subSize}px "KaTeX_Main", "Outfit", "Segoe UI", system-ui, sans-serif`;
+    const argFont = `italic 700 ${argSize}px "KaTeX_Math", "Cambria Math", "Times New Roman", serif`;
+    const textFont = `700 ${baseSize}px "Outfit", "Segoe UI", system-ui, sans-serif`;
+
+    ctx.save();
+    let totalW = 0;
+    tokens.forEach(tok => {
+      if (tok.type === 'math') ctx.font = mathFont;
+      else if (tok.type === 'sub') ctx.font = subFont;
+      else if (tok.type === 'arg') ctx.font = argFont;
+      else ctx.font = textFont;
+      totalW += ctx.measureText(tok.t).width;
+    });
+    ctx.restore();
+    return totalW;
+  }
+
+  drawMathText(ctx, str, x, y, options = {}) {
+    const isDark = this.options.theme === 'dark';
+    const baseSize = options.baseSize || 12;
+    const subSize = options.subSize || Math.round(baseSize * 0.72);
+    const argSize = options.argSize || Math.round(baseSize * 0.88);
+    const align = options.align || 'left';
+    const color = options.color || (isDark ? '#f8fafc' : '#000000');
+    const subDy = options.subDy !== undefined ? options.subDy : Math.max(2, baseSize * 0.26);
+
+    const tokens = this.parseMathTokens(str);
+
+    const mathFont = `italic 700 ${baseSize + 1}px "KaTeX_Math", "Cambria Math", "Times New Roman", serif`;
+    const subFont = `700 ${subSize}px "KaTeX_Main", "Outfit", "Segoe UI", system-ui, sans-serif`;
+    const argFont = `italic 700 ${argSize}px "KaTeX_Math", "Cambria Math", "Times New Roman", serif`;
+    const textFont = `700 ${baseSize}px "Outfit", "Segoe UI", system-ui, sans-serif`;
+
+    ctx.save();
+    const measured = tokens.map(tok => {
+      let font = textFont;
+      let dy = 0;
+      if (tok.type === 'math') {
+        font = mathFont;
+      } else if (tok.type === 'sub') {
+        font = subFont;
+        dy = subDy;
+      } else if (tok.type === 'arg') {
+        font = argFont;
+      }
+      ctx.font = font;
+      const w = ctx.measureText(tok.t).width;
+      return { ...tok, font, dy, w };
+    });
+
+    const totalW = measured.reduce((acc, it) => acc + it.w, 0);
+
+    let startX = x;
+    if (align === 'center') {
+      startX = x - totalW / 2;
+    } else if (align === 'right') {
+      startX = x - totalW;
+    }
+
+    ctx.fillStyle = color;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+
+    measured.forEach(it => {
+      ctx.font = it.font;
+      ctx.fillText(it.t, startX, y + it.dy);
+      startX += it.w;
+    });
+
+    ctx.restore();
+    return totalW;
+  }
+
   drawCallout(ctx, px, py, text, color) {
     const isDark = this.options.theme === 'dark';
     ctx.save();
-    ctx.font = 'bold 12px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-    const metrics = ctx.measureText(text);
-    const boxW = metrics.width + 16;
+    const baseSize = 12;
+    const totalW = this.measureMathText(ctx, text, { baseSize });
+    const boxW = totalW + 18;
     const boxH = 24;
 
     let boxX = px + 12;
@@ -1351,10 +1512,11 @@ export class DiagramRenderer {
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text, boxX + 8, boxY + boxH / 2);
+    this.drawMathText(ctx, text, boxX + 9, boxY + boxH / 2, {
+      baseSize,
+      align: 'left',
+      color: isDark ? '#f8fafc' : '#000000'
+    });
     ctx.restore();
   }
 

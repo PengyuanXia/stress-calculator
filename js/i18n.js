@@ -27,6 +27,7 @@ export const TRANSLATIONS = {
     themeDay: '☀️ Day',
     themeNight: '🌙 Night',
     langToggle: 'PL',
+    footerCreator: 'Created by <strong>Pengyuan Xia</strong>',
 
     // Shapes
     shape_rect: 'Solid Rectangle',
@@ -155,6 +156,7 @@ export const TRANSLATIONS = {
     themeDay: '☀️ Jasny',
     themeNight: '🌙 Ciemny',
     langToggle: 'EN',
+    footerCreator: 'Twórca: <strong>Pengyuan Xia</strong>',
 
     // Shapes
     shape_rect: 'Prostokąt Pełny',

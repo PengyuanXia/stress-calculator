@@ -247,8 +247,14 @@ class StressCalculatorApp {
     const btnCloseContactFooter = document.getElementById('btnCloseContactModalFooter');
     const btnCopyEmail = document.getElementById('btnCopyEmail');
 
+    const btnFooterContact = document.getElementById('btnFooterContact');
+
     if (btnContact) {
       btnContact.addEventListener('click', () => this.openContactModal());
+    }
+
+    if (btnFooterContact) {
+      btnFooterContact.addEventListener('click', () => this.openContactModal());
     }
 
     if (btnCloseContact) {

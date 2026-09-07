@@ -140,11 +140,7 @@ export class MohrRenderer {
 
         const midAng = -thetaPRad / 2;
         const arcLabelR = arcR + 13;
-        ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-        ctx.font = 'bold 11px monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('θₚ', cx + arcLabelR * Math.cos(midAng), cy + arcLabelR * Math.sin(midAng));
+        this.drawMathText(ctx, 'θ_p', cx + arcLabelR * Math.cos(midAng), cy + arcLabelR * Math.sin(midAng), { align: 'center', baseSize: 12 });
         ctx.restore();
       }
 
@@ -222,12 +218,9 @@ export class MohrRenderer {
       ctx.restore(); // Return to regular coordinate frame
 
       // 4. Summary labels below element for Principal Mode
-      ctx.font = 'bold 13px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-      ctx.fillText(`σ₁ = ${sigma1 >= 0 ? '+' : ''}${sigma1.toFixed(1)} MPa`, cx, h - 46);
-      ctx.fillText(`σ₂ = ${sigma2 >= 0 ? '+' : ''}${sigma2.toFixed(1)} MPa`, cx, h - 27);
-      ctx.fillText(`θₚ = ${thetaPDeg >= 0 ? '+' : ''}${thetaPDeg.toFixed(1)}°`, cx, h - 8);
+      this.drawMathText(ctx, `σ_1 = ${sigma1 >= 0 ? '+' : ''}${sigma1.toFixed(1)} MPa`, cx, h - 46, { align: 'center', baseSize: 13 });
+      this.drawMathText(ctx, `σ_2 = ${sigma2 >= 0 ? '+' : ''}${sigma2.toFixed(1)} MPa`, cx, h - 27, { align: 'center', baseSize: 13 });
+      this.drawMathText(ctx, `θ_p = ${thetaPDeg >= 0 ? '+' : ''}${thetaPDeg.toFixed(1)}°`, cx, h - 8, { align: 'center', baseSize: 13 });
 
     } else {
       // ==========================================
@@ -296,12 +289,9 @@ export class MohrRenderer {
       ctx.fillText('dy·dz', cx, cy);
 
       // Summary labels below element
-      ctx.font = 'bold 13px "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-      ctx.fillText(`σ(z) = ${sigma >= 0 ? '+' : ''}${sigma.toFixed(1)} MPa`, cx, h - 46);
-      ctx.fillText(`τ_z = ${tau >= 0 ? '+' : ''}${tau.toFixed(1)} MPa`, cx, h - 27);
-      ctx.fillText(`θₚ = ${thetaPDeg >= 0 ? '+' : ''}${thetaPDeg.toFixed(1)}°`, cx, h - 8);
+      this.drawMathText(ctx, `σ(z) = ${sigma >= 0 ? '+' : ''}${sigma.toFixed(1)} MPa`, cx, h - 46, { align: 'center', baseSize: 13 });
+      this.drawMathText(ctx, `τ_z = ${tau >= 0 ? '+' : ''}${tau.toFixed(1)} MPa`, cx, h - 27, { align: 'center', baseSize: 13 });
+      this.drawMathText(ctx, `θ_p = ${thetaPDeg >= 0 ? '+' : ''}${thetaPDeg.toFixed(1)}°`, cx, h - 8, { align: 'center', baseSize: 13 });
     }
 
     ctx.restore();
@@ -375,12 +365,8 @@ export class MohrRenderer {
     this.drawArrow(ctx, cx, 24, cx, 12, 5);
 
     // Axis labels
-    ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-    ctx.font = 'bold 11px monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText('σ [MPa]', w - 14, cy - 8);
-    ctx.textAlign = 'left';
-    ctx.fillText('τ [MPa]', cx + 8, 20);
+    this.drawMathText(ctx, 'σ [MPa]', w - 14, cy - 8, { align: 'right', baseSize: 11 });
+    this.drawMathText(ctx, 'τ [MPa]', cx + 8, 20, { align: 'left', baseSize: 11 });
 
     // 2. Circle
     const centerPx = toPx(sigmaAvg, 0);
@@ -422,18 +408,12 @@ export class MohrRenderer {
     ctx.beginPath();
     ctx.arc(ptX.x, ptX.y, 4.5, 0, 2 * Math.PI);
     ctx.fill();
-    ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-    ctx.font = 'bold 11px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(' X', ptX.x + 4, ptX.y - 4);
 
     // Point Y
     ctx.fillStyle = isDark ? '#94a3b8' : '#64748b';
     ctx.beginPath();
     ctx.arc(ptY.x, ptY.y, 4, 0, 2 * Math.PI);
     ctx.fill();
-    ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-    ctx.fillText(' Y', ptY.x + 4, ptY.y - 4);
 
     // 5. Principal Stress Points \sigma_1 and \sigma_2
     const p1 = toPx(sigma1, 0);
@@ -449,18 +429,92 @@ export class MohrRenderer {
     ctx.arc(p2.x, p2.y, 4.5, 0, 2 * Math.PI);
     ctx.fill();
 
-    ctx.font = 'bold 12px monospace';
-    ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-    ctx.textAlign = 'center';
-    ctx.fillText(`σ₁=${sigma1.toFixed(1)}`, p1.x, p1.y + 16);
-    ctx.fillText(`σ₂=${sigma2.toFixed(1)}`, p2.x, p2.y + 16);
+    this.drawMathText(ctx, `σ_1 = ${sigma1.toFixed(1)}`, p1.x, p1.y + 16, { align: 'center', baseSize: 11 });
+    this.drawMathText(ctx, `σ_2 = ${sigma2.toFixed(1)}`, p2.x, p2.y + 16, { align: 'center', baseSize: 11 });
 
     // Max Shear Label on top
     const pTauMax = toPx(sigmaAvg, R);
-    ctx.fillStyle = isDark ? '#f8fafc' : '#000000';
-    ctx.fillText(`τₘₐₓ = ${R.toFixed(1)}`, pTauMax.x, pTauMax.y - 8);
+    this.drawMathText(ctx, `τ_max = ${R.toFixed(1)}`, pTauMax.x, pTauMax.y - 8, { align: 'center', baseSize: 11 });
 
     ctx.restore();
+  }
+
+  parseMathTokens(str) {
+    let s = String(str)
+      .replace(/₁/g, '_1')
+      .replace(/₂/g, '_2')
+      .replace(/ₚ/g, '_p')
+      .replace(/ₘₐₓ/g, '_max')
+      .replace(/ₘᵢₙ/g, '_min');
+
+    const tokens = [];
+    const m = s.match(/^([στθMyz])(?:_([a-zA-Z0-9,]+)|\(([a-zA-Z0-9,]+)\))?(.*)$/);
+    if (m) {
+      const [, variable, sub, arg, rest] = m;
+      tokens.push({ t: variable, type: 'math' });
+      if (sub) tokens.push({ t: sub, type: 'sub' });
+      if (arg) tokens.push({ t: `(${arg})`, type: 'arg' });
+      if (rest) tokens.push({ t: rest, type: 'text' });
+    } else {
+      tokens.push({ t: s, type: 'text' });
+    }
+    return tokens;
+  }
+
+  drawMathText(ctx, str, x, y, options = {}) {
+    const isDark = this.options.theme === 'dark';
+    const baseSize = options.baseSize || 12;
+    const subSize = options.subSize || Math.round(baseSize * 0.72);
+    const argSize = options.argSize || Math.round(baseSize * 0.88);
+    const align = options.align || 'left';
+    const color = options.color || (isDark ? '#f8fafc' : '#000000');
+    const subDy = options.subDy !== undefined ? options.subDy : Math.max(2, baseSize * 0.26);
+
+    const tokens = this.parseMathTokens(str);
+
+    const mathFont = `italic 700 ${baseSize + 1}px "KaTeX_Math", "Cambria Math", "Times New Roman", serif`;
+    const subFont = `700 ${subSize}px "KaTeX_Main", "Outfit", "Segoe UI", system-ui, sans-serif`;
+    const argFont = `italic 700 ${argSize}px "KaTeX_Math", "Cambria Math", "Times New Roman", serif`;
+    const textFont = `700 ${baseSize}px "Outfit", "Segoe UI", system-ui, sans-serif`;
+
+    ctx.save();
+    const measured = tokens.map(tok => {
+      let font = textFont;
+      let dy = 0;
+      if (tok.type === 'math') {
+        font = mathFont;
+      } else if (tok.type === 'sub') {
+        font = subFont;
+        dy = subDy;
+      } else if (tok.type === 'arg') {
+        font = argFont;
+      }
+      ctx.font = font;
+      const w = ctx.measureText(tok.t).width;
+      return { ...tok, font, dy, w };
+    });
+
+    const totalW = measured.reduce((acc, it) => acc + it.w, 0);
+
+    let startX = x;
+    if (align === 'center') {
+      startX = x - totalW / 2;
+    } else if (align === 'right') {
+      startX = x - totalW;
+    }
+
+    ctx.fillStyle = color;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+
+    measured.forEach(it => {
+      ctx.font = it.font;
+      ctx.fillText(it.t, startX, y + it.dy);
+      startX += it.w;
+    });
+
+    ctx.restore();
+    return totalW;
   }
 
   drawArrow(ctx, fromX, fromY, toX, toY, headLength = 6) {

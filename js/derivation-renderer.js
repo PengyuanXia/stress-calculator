@@ -132,7 +132,7 @@ export class DerivationRenderer {
     `);
 
     renderMath('math-neutral-axis', `
-      \\text{Oś Obojętna / Neutral Axis } (\\sigma = 0): \\quad \\tan\\beta = \\frac{I_z}{I_y} \\frac{|M_y|}{|M_z|} = \\frac{${fmtNum(Iz, 0)}}{${fmtNum(Iy, 0)}} \\frac{${fmtNum(Math.abs(My_kNm), 1)}}{${fmtNum(Math.abs(Mz_kNm), 1)}} \\implies \\beta = ${fmtNum(betaDeg, 1)}^\\circ
+      \\text{${isPl ? 'Oś Obojętna' : 'Neutral Axis'}} (\\sigma = 0): \\quad \\tan\\beta = \\frac{I_z}{I_y} \\frac{|M_y|}{|M_z|} = \\frac{${fmtNum(Iz, 0)}}{${fmtNum(Iy, 0)}} \\frac{${fmtNum(Math.abs(My_kNm), 1)}}{${fmtNum(Math.abs(Mz_kNm), 1)}} \\implies \\beta = ${fmtNum(betaDeg, 1)}^\\circ
     `);
 
     // 3. Shear Stress (Jourawski)
