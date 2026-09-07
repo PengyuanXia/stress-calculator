@@ -106,7 +106,7 @@ export class DerivationRenderer {
       A = ${fmtNum(area_cm2, 2)} \\text{ cm}^2, \\quad \\bar{z}_{\\text{bot}} = ${fmtNum(zBar_cm, 2)} \\text{ cm}
     `);
     renderMath('math-geom-2', `
-      I_y = ${fmtNum(Iy_cm4, 2)} \\text{ cm}^4, \\quad I_z = ${fmtNum(Iz_cm4, 2)} \\text{ cm}^4
+      J_y = ${fmtNum(Iy_cm4, 2)} \\text{ cm}^4, \\quad J_z = ${fmtNum(Iz_cm4, 2)} \\text{ cm}^4
     `);
 
     // 2. Normal Stress (Navier)
@@ -117,7 +117,7 @@ export class DerivationRenderer {
     const betaDeg = analysis.neutralAxis?.betaDeg ?? 0;
 
     renderMath('math-sigma-formula', `
-      \\sigma(y, z) = \\frac{M_y}{I_y} z - \\frac{M_z}{I_z} y = \\frac{${fmtNum(My_Nmm, 0)}}{${fmtNum(Iy, 0)}} z - \\frac{${fmtNum(Mz_Nmm, 0)}}{${fmtNum(Iz, 0)}} y \\quad [\\text{MPa}]
+      \\sigma(y, z) = \\frac{M_y}{J_y} z - \\frac{M_z}{J_z} y = \\frac{${fmtNum(My_Nmm, 0)}}{${fmtNum(Iy, 0)}} z - \\frac{${fmtNum(Mz_Nmm, 0)}}{${fmtNum(Iz, 0)}} y \\quad [\\text{MPa}]
     `);
 
     const topSigma = analysis.evaluateAt(section.yTop).sigma;
@@ -132,13 +132,13 @@ export class DerivationRenderer {
     `);
 
     renderMath('math-neutral-axis', `
-      \\text{${isPl ? 'Oś Obojętna' : 'Neutral Axis'}} (\\sigma = 0): \\quad \\tan\\beta = \\frac{I_z}{I_y} \\frac{|M_y|}{|M_z|} = \\frac{${fmtNum(Iz, 0)}}{${fmtNum(Iy, 0)}} \\frac{${fmtNum(Math.abs(My_kNm), 1)}}{${fmtNum(Math.abs(Mz_kNm), 1)}} \\implies \\beta = ${fmtNum(betaDeg, 1)}^\\circ
+      \\text{${isPl ? 'Oś Obojętna' : 'Neutral Axis'}} (\\sigma = 0): \\quad \\tan\\beta = \\frac{J_z}{J_y} \\frac{|M_y|}{|M_z|} = \\frac{${fmtNum(Iz, 0)}}{${fmtNum(Iy, 0)}} \\frac{${fmtNum(Math.abs(My_kNm), 1)}}{${fmtNum(Math.abs(Mz_kNm), 1)}} \\implies \\beta = ${fmtNum(betaDeg, 1)}^\\circ
     `);
 
     // 3. Shear Stress (Jourawski)
     const Vz_N = forces.Vz_N !== undefined ? forces.Vz_N : (forces.V_N || 0);
     renderMath('math-tau-formula', `
-      \\tau_z(z) = \\frac{T_z \\cdot S_y(z)}{I_y \\cdot b(z)} = \\frac{${fmtNum(Vz_N, 0)} \\cdot S_y(z)}{${fmtNum(Iy, 0)} \\cdot b(z)} \\quad [\\text{MPa}]
+      \\tau_z(z) = \\frac{T_z \\cdot S_y(z)}{J_y \\cdot b(z)} = \\frac{${fmtNum(Vz_N, 0)} \\cdot S_y(z)}{${fmtNum(Iy, 0)} \\cdot b(z)} \\quad [\\text{MPa}]
     `);
 
     const naPt = analysis.evaluateAt(0);

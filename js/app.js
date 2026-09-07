@@ -647,7 +647,7 @@ class StressCalculatorApp {
         <div>• <strong>${isPl ? 'Przekrój:' : 'Section Profile:'}</strong> ${shapeName}</div>
         <div>• <strong>${isPl ? 'Wymiary:' : 'Dimensions:'}</strong> ${this.formatSectionParams(this.state.params)}</div>
         <div>• <strong>${isPl ? 'Pole & Śr. ciężkości:' : 'Area & Centroid:'}</strong> <i>A</i> = ${A_cm2} cm², <i>z̄</i><sub>bot</sub> = ${zBot_cm} cm</div>
-        <div>• <strong>${isPl ? 'Momenty bezwładności:' : 'Moments of Inertia:'}</strong> <i>I</i><sub>y</sub> = ${Iy_cm4} cm⁴, <i>I</i><sub>z</sub> = ${Iz_cm4} cm⁴</div>
+        <div>• <strong>${isPl ? 'Momenty bezwładności:' : 'Moments of Inertia:'}</strong> <i>J</i><sub>y</sub> = ${Iy_cm4} cm⁴, <i>J</i><sub>z</sub> = ${Iz_cm4} cm⁴</div>
       `;
     }
 
