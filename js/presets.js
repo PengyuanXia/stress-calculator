@@ -11,7 +11,7 @@ export const PRESETS = {
     { name: '30 × 60 cm', params: { b: 30, h: 60 }, desc: 'Bridge / transfer beam' }
   ],
   ibeam: [
-    { name: 'Girder 54 × 25 cm', params: { h: 54, tw: 1.0, bft: 25, tft: 2.0, bfb: 25, tfb: 2.0 }, desc: 'Heavy flanged steel girder' },
+    { name: 'Girder 54 × 25 cm', params: { h: 54, tw: 2.0, bft: 25, tft: 2.0, bfb: 25, tfb: 2.0 }, desc: 'Heavy flanged steel girder' },
     { name: 'IPE 20 (20 × 10 cm)', params: { h: 20, tw: 0.56, bft: 10, tft: 0.85, bfb: 10, tfb: 0.85 }, desc: 'Eurocode standard light I-section' },
     { name: 'IPE 30 (30 × 15 cm)', params: { h: 30, tw: 0.71, bft: 15, tft: 1.07, bfb: 15, tfb: 1.07 }, desc: 'Eurocode popular floor beam' },
     { name: 'HEB 20 (20 × 20 cm)', params: { h: 20, tw: 0.9, bft: 20, tft: 1.5, bfb: 20, tfb: 1.5 }, desc: 'Broad flange heavy beam / column' },
