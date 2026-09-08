@@ -679,7 +679,7 @@ class StressCalculatorApp {
         <div>• <strong>${isPl ? 'Momenty gnące:' : 'Bending Moments:'}</strong> <i>M</i><sub>y</sub> = ${My >= 0 ? '+' : ''}${My.toFixed(1)} kNm, <i>M</i><sub>z</sub> = ${Mz >= 0 ? '+' : ''}${Mz.toFixed(1)} kNm</div>
         <div>• <strong>${isPl ? 'Siły tnące:' : 'Shear Forces:'}</strong> <i>T</i><sub>z</sub> = ${Tz >= 0 ? '+' : ''}${Tz.toFixed(1)} kN, <i>T</i><sub>y</sub> = ${Ty >= 0 ? '+' : ''}${Ty.toFixed(1)} kN</div>
         <div>• <strong>${isPl ? 'Oś obojętna (N-A):' : 'Neutral Axis (N-A):'}</strong> <i>β</i> = ${beta.toFixed(1)}°</div>
-        <div>• <strong>${isPl ? 'Badana wysokość:' : 'Inspected Elevation:'}</strong> <i>z</i> = ${(this.state.probeY / 10).toFixed(1)} cm</div>
+        <div>• <strong>${isPl ? 'Badana wysokość:' : 'Inspected Elevation:'}</strong> <i>z</i> = ${(- this.state.probeY / 10).toFixed(1)} cm</div>
       `;
     }
   }
@@ -796,8 +796,12 @@ class StressCalculatorApp {
       ctx.font = 'bold 24px sans-serif';
       ctx.fillText('StructLab.tech - Beam Stress Distribution Analysis', 24, 42);
 
-      const ld = this.state.loading || {};
-      const subtitle = `Shape: ${this.state.shapeType.toUpperCase()} | Load F = ${ld.F} kN (α = ${ld.alpha}°), Lever Arm L = ${ld.L} m`;
+      const My = this.state.moments.My ?? 0;
+      const Mz = this.state.moments.Mz ?? 0;
+      const Tz = this.state.shears.Vz ?? 0;
+      const Ty = this.state.shears.Vy ?? 0;
+      const zCm = (- this.state.probeY / 10).toFixed(1);
+      const subtitle = `Shape: ${this.state.shapeType.toUpperCase()} | My = ${My >= 0 ? '+' : ''}${My} kNm, Mz = ${Mz >= 0 ? '+' : ''}${Mz} kNm | Tz = ${Tz >= 0 ? '+' : ''}${Tz} kN, Ty = ${Ty >= 0 ? '+' : ''}${Ty} kN | Elevation z = ${zCm} cm`;
       ctx.fillStyle = isDark ? '#94a3b8' : '#64748b';
       ctx.font = '14px monospace';
       ctx.fillText(subtitle, 24, 66);
