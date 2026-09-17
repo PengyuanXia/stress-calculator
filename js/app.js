@@ -287,17 +287,59 @@ class StressCalculatorApp {
       btnCopyEmail.addEventListener('click', () => this.copyEmailToClipboard());
     }
 
+    // 6. Model Menu Dropdown (Share / Save / Load)
+    const btnModelMenu = document.getElementById('btnModelMenu');
+    const modelDropdownMenu = document.getElementById('modelDropdownMenu');
+    const modelDropdownContainer = document.getElementById('modelDropdownContainer');
+    const modelMenuCaret = document.getElementById('modelMenuCaret');
+
+    const closeModelDropdown = () => {
+      if (modelDropdownMenu && !modelDropdownMenu.classList.contains('hidden')) {
+        modelDropdownMenu.classList.add('hidden');
+        if (modelMenuCaret) modelMenuCaret.classList.remove('rotate-180');
+      }
+    };
+
+    if (btnModelMenu && modelDropdownMenu) {
+      btnModelMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !modelDropdownMenu.classList.contains('hidden');
+        if (isOpen) {
+          closeModelDropdown();
+        } else {
+          modelDropdownMenu.classList.remove('hidden');
+          if (modelMenuCaret) modelMenuCaret.classList.add('rotate-180');
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (modelDropdownContainer && !modelDropdownContainer.contains(e.target)) {
+          closeModelDropdown();
+        }
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModelDropdown();
+      });
+    }
+
     // 6a. Save Model Button
     const btnSave = document.getElementById('btnSaveModel');
     if (btnSave) {
-      btnSave.addEventListener('click', () => this.saveModelJSON());
+      btnSave.addEventListener('click', () => {
+        closeModelDropdown();
+        this.saveModelJSON();
+      });
     }
 
     // 6b. Load Model Button
     const btnLoad = document.getElementById('btnLoadModel');
     const inpModelFile = document.getElementById('inpModelFile');
     if (btnLoad && inpModelFile) {
-      btnLoad.addEventListener('click', () => inpModelFile.click());
+      btnLoad.addEventListener('click', () => {
+        closeModelDropdown();
+        inpModelFile.click();
+      });
       inpModelFile.addEventListener('change', (e) => this.loadModelJSON(e));
     }
 
@@ -305,6 +347,7 @@ class StressCalculatorApp {
     const btnShare = document.getElementById('btnShare');
     if (btnShare) {
       btnShare.addEventListener('click', () => {
+        closeModelDropdown();
         this.shareManager.open(this.state);
       });
     }
